@@ -1,5 +1,7 @@
 package sourceCode;
 
+import java.util.Stack;
+
 public class Main {
 
 	public static void main(String[] args) {
@@ -148,6 +150,62 @@ public class Main {
 			System.out.println("TEST FAILED");
 		else
 			testsPassed++;
+	}
+	
+	static JExpr findRedex(Context C, JExpr e)
+	{
+		if (e.isValue())
+		{
+			C = new CHole();
+			return e;
+		}
+		
+	
+		if (e instanceof JIf)
+		{
+			//if ec is a value, return 
+			if (((JIf)e).cond.isValue())
+			{
+				C = new CHole();
+				return e;
+			}
+			else
+			{
+				JExpr redex = findRedex(C, ((JIf)e).cond);
+				C = new CIf0(((JIf)e).tbr, ((JIf)e).fbr, C);
+				return redex;
+			}
+		}
+		
+		if (e instanceof JApp)
+		{
+			Stack<JExpr> stack = new Stack<JExpr>();
+			JExpr nav = ((JApp)e).args;
+			JExpr left = new JNull();
+			
+			while (!nav.isValue())
+			{
+				if (nav instanceof JCons)
+				{
+					if (!((JCons)nav).lhs.isValue())
+					{
+						
+						while (!stack.empty())
+							left = new JCons(stack.pop(), left);
+						
+						JExpr redex = findRedex(C, ((JCons)nav).lhs);
+						C = new CApp(left, ((JCons)nav).rhs, C);
+						return redex;
+					}
+					else
+						stack.push(((JCons)nav).lhs);
+				}
+				
+				nav = ((JCons)nav).rhs;
+			}
+		}
+		
+		return e;
 	}
 }
 

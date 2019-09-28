@@ -17,8 +17,9 @@ class CHole implements Context {
 //(if C e e)
 //(if cond lhs rhs)
 class CIf0 implements Context {
-	CIf0(JExpr newLhs, JExpr newRhs)
+	CIf0(JExpr newLhs, JExpr newRhs, Context newC)
 	{
+		cond = newC;
 		lhs = newLhs;
 		rhs = newRhs;
 	}
@@ -29,7 +30,7 @@ class CIf0 implements Context {
 		return new JIf(cond.plug(e), lhs, rhs);
 	}
 	
-	Context cond = new CHole();
+	Context cond;
 	JExpr lhs;
 	JExpr rhs;
 }
@@ -37,8 +38,9 @@ class CIf0 implements Context {
 //(if e C e)
 //(if cond lhs rhs)
 class CIf1 implements Context {
-	CIf1(JExpr newCond, JExpr newRhs)
+	CIf1(JExpr newCond, JExpr newRhs, Context newC)
 	{
+		lhs = newC;
 		cond = newCond;
 		rhs = newRhs;
 	}
@@ -50,15 +52,16 @@ class CIf1 implements Context {
 	}
 	
 	JExpr cond;
-	Context lhs = new CHole();
+	Context lhs;
 	JExpr rhs;
 }
 
 //(if e e C)
 //(if cond lhs rhs)
 class CIf2 implements Context {
-	CIf2(JExpr newLhs, JExpr newCond)
+	CIf2(JExpr newLhs, JExpr newCond, Context newC)
 	{
+		rhs = newC;
 		lhs = newLhs;
 		cond = newCond;
 	}
@@ -71,14 +74,15 @@ class CIf2 implements Context {
 	
 	JExpr cond;
 	JExpr lhs;
-	Context rhs = new CHole();
+	Context rhs;
 }
 
 //(e ... C e ...)
 //(lhs ... hole rhs)
 class CApp implements Context {
-	CApp(JExpr newLhs, JExpr newRhs)
+	CApp(JExpr newLhs, JExpr newRhs, Context newC)
 	{
+		hole = newC;
 		lhs = newLhs;
 		rhs = newRhs;
 	}
@@ -109,7 +113,7 @@ class CApp implements Context {
 		return app;
 	}
 	
-	Context hole = new CHole();
+	Context hole;
 	JExpr lhs;
 	JExpr rhs;
 }
