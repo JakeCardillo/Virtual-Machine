@@ -46,7 +46,8 @@ class JNum implements JExpr {
 	public int n;
 	public JNum(int n) {
 		this.n = n; }
-	public Boolean isValue() { return true; }
+	public Boolean isValue() { 
+		return true; }
 	public String pp() {
 		return "" + this.n; }
 	public JExpr interp() {
@@ -57,7 +58,8 @@ class JBool implements JExpr {
 	public Boolean b;
 	public JBool(Boolean b) {
 		this.b = b; }
-	public Boolean isValue() { return true; }
+	public Boolean isValue() { 
+		return true; }
 	public String pp() {
 		return "" + this.b; }
 	public JExpr interp() {
@@ -70,7 +72,8 @@ class JIf implements JExpr {
 		this.cond = cond;
 		this.tbr = tbr;
 		this.fbr = fbr; }
-	public Boolean isValue() { return false; }
+	public Boolean isValue() { 
+		return false; }
 	public String pp() {
 		return "(if " + this.cond.pp() + " " + this.tbr.pp() + " " + this.fbr.pp() + ")"; }
 	public JExpr interp() {
@@ -86,7 +89,8 @@ class JApp implements JExpr {
 	public JApp(JExpr fun, JExpr args) {
 		this.fun = fun;
 		this.args = args; }
-	public Boolean isValue() { return false; }
+	public Boolean isValue() { 
+		return false; }
 	public String pp() {
 		return "(@ " + this.fun.pp() + " " + this.args.pp() + ")"; }
 	public JExpr interp() {
@@ -96,6 +100,7 @@ class JApp implements JExpr {
 		String p = ((JPrim)which_fun).p;
 		int lhs = ((JNum)((JCons)arg_vals).lhs).n;
 		int rhs = ((JNum)((JCons)((JCons)arg_vals).rhs).lhs).n;
+		
 		if ( p.equals("+") ) { return new JNum(lhs + rhs); }
 		if ( p.equals("*") ) { return new JNum(lhs * rhs); }
 		if ( p.equals("/") ) { return new JNum(lhs / rhs); }
