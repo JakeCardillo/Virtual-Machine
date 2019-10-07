@@ -172,7 +172,7 @@ public class Main {
 			else
 			{
 				JExpr redex = findRedex(C, ((JIf)e).cond);
-				C = new CIf0(((JIf)e).tbr, ((JIf)e).fbr, C);
+				C = new CIf(((JIf)e).tbr, ((JIf)e).fbr, C);
 				return redex;
 			}
 		}
@@ -206,6 +206,24 @@ public class Main {
 		}
 		
 		return e;
+	}
+	
+	static JExpr interp(JExpr e)
+	{
+		 Context C = new CHole();
+		 JExpr e1 = findRedex(C, e);
+		 JExpr e2 = e1.step();
+		 
+		 return C.plug(e2);
+	}
+	
+	static JExpr Interp(JExpr e)
+	{
+		JExpr e1 = interp(e);
+		if (e == e1)
+			return e;
+		else
+			return Interp(e1);
 	}
 }
 

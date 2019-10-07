@@ -4,7 +4,7 @@ public interface JExpr {
 	public Boolean isValue();
 	public String pp();
 	public JExpr interp();
-
+	public JExpr step();
 }
 
 class JNull implements JExpr {
@@ -15,7 +15,9 @@ class JNull implements JExpr {
 		return true; }
 	public JExpr interp() { 
 		return this; } 
-	}
+	public JExpr step() {
+		return this; }
+}
 
 class JCons implements JExpr {
 	public JExpr lhs, rhs;
@@ -28,7 +30,9 @@ class JCons implements JExpr {
 		return false; }
 	public JExpr interp() {
 		return new JCons(this.lhs.interp(), this.rhs.interp()); }
-	}
+	public JExpr step() {
+		return lhs.step(); }
+}
 
 class JPrim implements JExpr {
 	public String p;
@@ -40,7 +44,9 @@ class JPrim implements JExpr {
 		return "" + this.p; }
 	public JExpr interp() {
 		return this; } 
-	}
+	public JExpr step() {
+		return this; }
+}
 
 class JNum implements JExpr {
 	public int n;
@@ -52,7 +58,9 @@ class JNum implements JExpr {
 		return "" + this.n; }
 	public JExpr interp() {
 		return this; } 
-	}
+	public JExpr step() {
+		return this; }
+}
 
 class JBool implements JExpr {
 	public Boolean b;
@@ -64,7 +72,9 @@ class JBool implements JExpr {
 		return "" + this.b; }
 	public JExpr interp() {
 		return this; } 
-	}
+	public JExpr step() {
+		return this; }
+}
 
 class JIf implements JExpr {
 	public JExpr cond, tbr, fbr;
@@ -82,7 +92,24 @@ class JIf implements JExpr {
 				&& ((JBool)condv).b == false ) {
 			return this.fbr.interp(); }
 		else {
-			return this.tbr.interp(); } } }
+			return this.tbr.interp(); } } 
+
+	public JExpr step()
+	{
+		if ( cond instanceof JBool)
+			if (cond == new JBool(true))
+				return tbr;
+			else
+				return fbr;
+		else
+		{
+			JExpr newCond = cond.step();
+			cond = newCond;
+			return this;
+		}
+
+	}
+}
 
 class JApp implements JExpr {
 	public JExpr fun, args;
@@ -100,7 +127,7 @@ class JApp implements JExpr {
 		String p = ((JPrim)which_fun).p;
 		int lhs = ((JNum)((JCons)arg_vals).lhs).n;
 		int rhs = ((JNum)((JCons)((JCons)arg_vals).rhs).lhs).n;
-		
+
 		if ( p.equals("+") ) { return new JNum(lhs + rhs); }
 		if ( p.equals("*") ) { return new JNum(lhs * rhs); }
 		if ( p.equals("/") ) { return new JNum(lhs / rhs); }
@@ -113,4 +140,38 @@ class JApp implements JExpr {
 		if ( p.equals("!=") ) { return new JBool(lhs != rhs); }
 
 		return new JNum(666); }
-	}
+	
+	public JExpr step() {
+		if (args instanceof JCons)
+		{
+			if (!((JCons) args).lhs.isValue())
+			{
+				((JCons) args).lhs = ((JCons) args).lhs.step();
+				return this;
+			}
+			if (!((JCons) ((JCons) args).rhs).lhs.isValue())
+			{
+				((JCons) ((JCons) args).rhs).lhs = ((JCons) ((JCons) args).rhs).lhs.step();
+				return this;
+			}
+			
+			String p = ((JPrim)fun).p;
+			int lhs = ((JNum)((JCons)args).lhs).n;
+			int rhs = ((JNum)((JCons)((JCons)args).rhs).lhs).n;
+
+			if ( p.equals("+") ) { return new JNum(lhs + rhs); }
+			if ( p.equals("*") ) { return new JNum(lhs * rhs); }
+			if ( p.equals("/") ) { return new JNum(lhs / rhs); }
+			if ( p.equals("-") ) { return new JNum(lhs - rhs); }
+			if ( p.equals("<") ) { return new JBool(lhs < rhs); }
+			if ( p.equals("<=") ) { return new JBool(lhs <= rhs); }
+			if ( p.equals("==") ) { return new JBool(lhs == rhs); }
+			if ( p.equals(">") ) { return new JBool(lhs > rhs); }
+			if ( p.equals(">=") ) { return new JBool(lhs >= rhs); }
+			if ( p.equals("!=") ) { return new JBool(lhs != rhs); }
+
+			return new JNum(666); }
+			
+		}
+		}
+}
