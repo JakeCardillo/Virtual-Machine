@@ -6,9 +6,12 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		test(SN(4), new JNum(4));
-		test(SA(SN(7),SN(9)), new JNum(16));
-		test(SM(SA(SN(8), SN(3)), SN(2)), new JNum(22));
+		conTest(JN(4), JN(4));
+		conTest(JA("+", JN(7), JA("+", JN(7),JN(9))), JN(23)); //no worky
+		conTest(JA("*", JN(7),JN(9)), JN(63));
+		conTest(JA("*", JA("+", JN(8), JN(3)), JN(2)), JN(22)); //no worky
+		conTest(JI(JB(true), JN(2), JN(3)), JN(2)); //no worky
+		
 		test(SA(SA(SA(SA(SN(8), SN(3)), SN(9)), SN(2)), SN(4)), new JNum(26));
 		test(SM(SN(9), SN(0)), new JNum(0));
 		test(SS(SN(5), SN(3)), new JNum(2));
@@ -18,17 +21,22 @@ public class Main {
 		test(SA(SM(SN(42),SN(0)),SA(SM(SN(42),SN(0)),SN(0))), new JNum(0));
 		test(SM(SN(8), SS(SN(7), SA(SN(6), SN(3)))), new JNum(-16));
 		test(SA(SN(7), SM(SN(9), SN(9))), new JNum(88));
+		
+		conTest((JExpr) JA("+", JN(45), JN(3)), JN(48));
 
 		System.out.println( testsPassed + " tests passed");
 	}
 
 	static JExpr JN(int n) {
-	    return new JNum(n); }
-	  static JExpr JA(JExpr lhs, JExpr rhs) {
-	    return new JApp(new JPrim("+"), new JCons(lhs, new JCons(rhs, new JNull()))); }
-	  static JExpr JM(JExpr lhs, JExpr rhs) {
-	    return new JApp(new JPrim("*"), new JCons(lhs, new JCons(rhs, new JNull()))); }
-	
+		return new JNum(n); }
+	static JExpr JB(Boolean b) {
+		return new JBool(b); }
+	static JExpr JA(String prim, JExpr lhs, JExpr rhs) {
+		return new JApp(new JPrim(prim), new JCons(lhs, new JCons(rhs, new JNull()))); }
+	static JExpr JI(JExpr cond, JExpr tbr, JExpr fbr) {
+		return new JIf(cond, tbr, fbr); }
+
+
 	static Sexpr SN(int n) {
 		return new SE_Num(n); }
 	static Sexpr SA(Sexpr lhs, Sexpr rhs) {
@@ -76,7 +84,7 @@ public class Main {
 				&& ((SE_Cons)se).lhs instanceof SE_Str
 				&& ((SE_Str)((SE_Cons)se).lhs).s.equals("+")
 				&& ((SE_Cons)se).rhs instanceof SE_Cons )
-			return JA( desugar(((SE_Cons)((SE_Cons)se).rhs).lhs),
+			return JA( "+", desugar(((SE_Cons)((SE_Cons)se).rhs).lhs),
 					desugar(new SE_Cons(((SE_Cons)se).lhs, 
 							((SE_Cons)((SE_Cons)se).rhs).rhs)));
 
@@ -85,7 +93,7 @@ public class Main {
 				&& ((SE_Cons)se).lhs instanceof SE_Str
 				&& ((SE_Str)((SE_Cons)se).lhs).s.equals("*")
 				&& ((SE_Cons)se).rhs instanceof SE_Cons )
-			return JM( desugar(((SE_Cons)((SE_Cons)se).rhs).lhs),
+			return JA( "*", desugar(((SE_Cons)((SE_Cons)se).rhs).lhs),
 					desugar(new SE_Cons(((SE_Cons)se).lhs, 
 							((SE_Cons)((SE_Cons)se).rhs).rhs)));
 
@@ -95,7 +103,7 @@ public class Main {
 				&& ((SE_Str)((SE_Cons)se).lhs).s.equals("-")
 				&& ((SE_Cons)se).rhs instanceof SE_Cons
 				&& ((SE_Cons)((SE_Cons)se).rhs).rhs instanceof SE_MT)
-			return JM( new JNum(-1), 
+			return JA( "*", new JNum(-1), 
 					desugar(((SE_Cons)((SE_Cons)se).rhs).lhs) );
 
 		//Subtraction
@@ -103,7 +111,7 @@ public class Main {
 				&& ((SE_Cons)se).lhs instanceof SE_Str
 				&& ((SE_Str)((SE_Cons)se).lhs).s.contentEquals("-")
 				&& ((SE_Cons)se).rhs instanceof SE_Cons )
-			return JA( desugar(((SE_Cons)((SE_Cons)se).rhs).lhs),
+			return JA( "+", desugar(((SE_Cons)((SE_Cons)se).rhs).lhs),
 					desugar(new SE_Cons(((SE_Cons)se).lhs, 
 							((SE_Cons)((SE_Cons)se).rhs).rhs)));
 
@@ -152,6 +160,26 @@ public class Main {
 			testsPassed++;
 	}
 	
+	static void conTest(JExpr e, JExpr real)
+	{
+		JExpr given = interp(e);
+		JExpr big = Interp(e);
+		
+		System.out.println("Real: " + real.pp() + " Given: " + given.pp() + " Big: " + big.pp());
+		
+		if (!given.isValue())
+		{
+			System.out.println("TEST FAILED");
+			return;
+		}
+		else if (given.pp().equals(real.pp()) && big.pp().equals(real.pp()))
+			testsPassed++;
+		else
+			System.out.println("TEST FAILED");
+		
+		return;
+	}
+	
 	static JExpr findRedex(Context C, JExpr e)
 	{
 		if (e.isValue())
@@ -179,30 +207,16 @@ public class Main {
 		
 		if (e instanceof JApp)
 		{
-			Stack<JExpr> stack = new Stack<JExpr>();
-			JExpr nav = ((JApp)e).args;
-			JExpr left = new JNull();
-			
-			while (!nav.isValue())
-			{
-				if (nav instanceof JCons)
-				{
-					if (!((JCons)nav).lhs.isValue())
-					{
-						
-						while (!stack.empty())
-							left = new JCons(stack.pop(), left);
-						
-						JExpr redex = findRedex(C, ((JCons)nav).lhs);
-						C = new CApp(left, ((JCons)nav).rhs, C);
-						return redex;
-					}
-					else
-						stack.push(((JCons)nav).lhs);
-				}
-				
-				nav = ((JCons)nav).rhs;
-			}
+			if(((JCons)((JApp)e).args).lhs.isValue() == false) {
+                JExpr redex = findRedex(C, ((JCons)((JApp)e).args).lhs);
+                C = new CApp(C, ((JApp)e).fun, new JNull(), ((JCons)((JCons)((JApp)e).args).rhs).lhs);
+                return redex;
+            }
+            if(((JCons)((JCons)((JApp)e).args).rhs).lhs.isValue() == false) {
+                JExpr redex = findRedex(C, ((JCons)((JCons)((JApp)e).args).rhs).lhs);
+                C = new CApp(C, ((JApp)e).fun, ((JCons)((JApp)e).args).lhs, new JNull());
+                return redex;
+            }
 		}
 		
 		return e;
@@ -212,7 +226,12 @@ public class Main {
 	{
 		 Context C = new CHole();
 		 JExpr e1 = findRedex(C, e);
+		 
+		 System.out.println("e1: " + e1.pp());
+		 
 		 JExpr e2 = e1.step();
+		 
+		 System.out.println("e2: " + e2.pp());
 		 
 		 return C.plug(e2);
 	}

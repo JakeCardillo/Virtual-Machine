@@ -140,7 +140,7 @@ class JApp implements JExpr {
 		if ( p.equals("!=") ) { return new JBool(lhs != rhs); }
 
 		return new JNum(666); }
-	
+
 	public JExpr step() {
 		if (args instanceof JCons)
 		{
@@ -154,7 +154,7 @@ class JApp implements JExpr {
 				((JCons) ((JCons) args).rhs).lhs = ((JCons) ((JCons) args).rhs).lhs.step();
 				return this;
 			}
-			
+
 			String p = ((JPrim)fun).p;
 			int lhs = ((JNum)((JCons)args).lhs).n;
 			int rhs = ((JNum)((JCons)((JCons)args).rhs).lhs).n;
@@ -170,8 +170,8 @@ class JApp implements JExpr {
 			if ( p.equals(">=") ) { return new JBool(lhs >= rhs); }
 			if ( p.equals("!=") ) { return new JBool(lhs != rhs); }
 
-			return new JNum(666); }
-			
+			return new JNum(666); 
 		}
-		}
+		return this;
+	}
 }

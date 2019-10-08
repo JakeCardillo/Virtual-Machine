@@ -38,40 +38,24 @@ class CIf implements Context {
 //(e ... E e ...)
 //(lhs ... hole rhs)
 class CApp implements Context {
-	CApp(JExpr newLhs, JExpr newRhs, Context newC)
-	{
-		hole = newC;
-		lhs = newLhs;
-		rhs = newRhs;
-	}
-	
-	//plug hole in context with e
-	public JExpr plug(JExpr e)
-	{
-		JApp app;
-		
-		//if lhs has children
-		if (lhs instanceof JCons)
-		{
-			JCons nav = (JCons) lhs;
-			//find the end of lhs
-			while (!(nav.rhs instanceof JNull))
-			{
-				nav = (JCons) nav.rhs;
-			}
-			//connect end of lhs with a node holding e and rhs
-			nav.rhs = new JCons(hole.plug(e), rhs);
-			app = new JApp(((JCons)lhs).lhs, ((JCons)lhs).rhs);
-		}
-		else
-		{
-			app = new JApp(lhs, new JCons(hole.plug(e), rhs));
-		}
-		
-		return app;
-	}
-	
 	Context hole;
+	JExpr fun;
 	JExpr lhs;
 	JExpr rhs;
+	
+	public CApp(Context C, JExpr func, JExpr left, JExpr right)
+	{
+		hole = C;
+		fun = func;
+		lhs = left;
+		rhs = right;
+	}
+	
+	public JExpr plug(JExpr x)
+	{
+		if (lhs instanceof JNull)
+			return new JApp(fun, new JCons(x, new JCons(rhs, new JNull())));
+		else
+			return new JApp(fun, new JCons(lhs, new JCons(x, new JNull())));
+	}
 }
