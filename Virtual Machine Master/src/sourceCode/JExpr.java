@@ -9,7 +9,7 @@ public interface JExpr {
 
 class JNull implements JExpr {
 	public String pp() { 
-		return "⊥"; }
+		return "NULL"; }
 	public JNull() { }
 	public Boolean isValue() { 
 		return true; }

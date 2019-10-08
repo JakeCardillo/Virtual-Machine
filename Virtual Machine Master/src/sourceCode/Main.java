@@ -1,30 +1,13 @@
 package sourceCode;
 
-import java.util.Stack;
-
 public class Main {
 
 	public static void main(String[] args) {
 
-		conTest(JN(4), JN(4));
-		conTest(JA("+", JN(7), JA("+", JN(7),JN(9))), JN(23)); //no worky
-		conTest(JA("*", JN(7),JN(9)), JN(63));
-		conTest(JA("*", JA("+", JN(8), JN(3)), JN(2)), JN(22)); //no worky
-		conTest(JI(JB(true), JN(2), JN(3)), JN(2)); //no worky
+		JExpr e = JA("+", JA("*", JN(2), JN(4)), JN(8));
 		
-		test(SA(SA(SA(SA(SN(8), SN(3)), SN(9)), SN(2)), SN(4)), new JNum(26));
-		test(SM(SN(9), SN(0)), new JNum(0));
-		test(SS(SN(5), SN(3)), new JNum(2));
-		test(SA(SN(42),SN(0)), new JNum(42));
-		test(SM(SN(42),SN(0)), new JNum(0));
-		test(SA(SM(SN(42),SN(0)),SN(0)), new JNum(0));
-		test(SA(SM(SN(42),SN(0)),SA(SM(SN(42),SN(0)),SN(0))), new JNum(0));
-		test(SM(SN(8), SS(SN(7), SA(SN(6), SN(3)))), new JNum(-16));
-		test(SA(SN(7), SM(SN(9), SN(9))), new JNum(88));
-		
-		conTest((JExpr) JA("+", JN(45), JN(3)), JN(48));
-
-		System.out.println( testsPassed + " tests passed");
+		System.out.println("CC0: " + CC0.interp(e).pp());
+		System.out.println("Big: " + e.interp().pp());
 	}
 
 	static JExpr JN(int n) {
@@ -226,12 +209,7 @@ public class Main {
 	{
 		 Context C = new CHole();
 		 JExpr e1 = findRedex(C, e);
-		 
-		 System.out.println("e1: " + e1.pp());
-		 
 		 JExpr e2 = e1.step();
-		 
-		 System.out.println("e2: " + e2.pp());
 		 
 		 return C.plug(e2);
 	}

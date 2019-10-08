@@ -1,6 +1,8 @@
 package sourceCode;
 
 public class CC0 {
+	private static Context last;
+	
 	public static state inject(JExpr e) {
 		Context E = new CHole();
 		return new state(e, E);
@@ -11,30 +13,165 @@ public class CC0 {
 	}
 
 	public static state step(state s) {
+		//JIf
 		if(s.e instanceof JIf)
-			return new state(((JIf)s.e).cond, new CIf(((JIf)s.e).tbr, ((JIf)s.e).fbr, new CHole()));
-		if(s.e instanceof JBool && ((JBool)s.e).b == true && s.E instanceof CIf)
-			return new state(((CIf)s.E).lhs, new CHole());
-		if(s.e instanceof JBool && ((JBool)s.e).b == false && s.E instanceof CIf)
-			return new state(((CIf)s.E).rhs, new CHole());
+		{
+			if (last instanceof CHole)
+			{
+				last = new CIf(((JIf)s.e).tbr, ((JIf)s.e).fbr, new CHole());
+				return new state(((JIf)s.e).cond, last);
+			}
+			else if (last instanceof CIf)
+			{
+				((CIf)last).cond = new CIf(((JIf)s.e).tbr, ((JIf)s.e).fbr, new CHole());
+				last = ((CIf)last).cond;
+				return new state(((JIf)s.e).cond, s.E);
+			}
+			else if (last instanceof CApp)
+			{
+				((CApp)last).hole = new CIf(((JIf)s.e).tbr, ((JIf)s.e).fbr, new CHole());
+				last = ((CApp)last).hole;
+				return new state(((JIf)s.e).cond, s.E);
+			}
+		}
+		
+		//JIf true
+		if(s.e instanceof JBool && ((JBool)s.e).b == true && last instanceof CIf) {
+            JExpr nexte = new JNull();
+            Context prev = null;
+            Context temp = s.E;
+            Context next = new CHole();
 
-		if(s.e instanceof JApp)
-			return new state(((JCons)((JApp)s.e).args).lhs, new CApp(new CHole(), ((JApp)s.e).fun, new JNull(), ((JCons)((JApp)s.e).args).rhs));
-		if(s.e.isValue() && s.E instanceof CApp && ((CApp)s.E).lhs instanceof JNull)
-			return new state(((CApp)s.E).rhs, new CApp(new CHole(), ((JApp)s.e).fun, s.e, new JNull()));
-		if(s.e.isValue() && s.E instanceof CApp && ((CApp)s.E).rhs instanceof JNull)
-			return new state(delta(s.E.plug(s.e)), new CHole());
-		return new state(new JNum(6969), new CHole());
+            nexte = ((CIf)last).lhs;
+
+            if(s.E == last)
+                s.E = new CHole();
+            else {
+                if(s.E instanceof CApp)
+                    next = ((CApp)s.E).hole;
+                else
+                    next = ((CIf)s.E).cond;
+                while(!(next instanceof CHole)) {
+                    prev = temp;
+                    temp = next;
+                    if(temp instanceof CApp)
+                        next = ((CApp)temp).hole;
+                    else
+                        next = ((CIf)temp).cond;
+                }
+                last = prev;
+                if(last instanceof CApp)
+                    ((CApp)last).hole = new CHole();
+                else
+                    ((CIf)last).cond = new CHole();
+            }
+            return new state(nexte, s.E);
+        }
+		
+		//JIf false
+		if(s.e instanceof JBool && ((JBool)s.e).b == false && last instanceof CIf) {
+            JExpr nexte = new JNull();
+            Context prev = null;
+            Context temp = s.E;
+            Context next = new CHole();
+
+            nexte = ((CIf)last).rhs;
+
+            if(s.E == last)
+                s.E = new CHole();
+            else {
+                if(s.E instanceof CApp)
+                    next = ((CApp)s.E).hole;
+                else
+                    next = ((CIf)s.E).cond;
+                while(!(next instanceof CHole)) {
+                    prev = temp;
+                    temp = next;
+                    if(temp instanceof CApp)
+                        next = ((CApp)temp).hole;
+                    else
+                        next = ((CIf)temp).cond;
+                }
+                last = prev;
+                if(last instanceof CApp)
+                    ((CApp)last).hole = new CHole();
+                else
+                    ((CIf)last).cond = new CHole();
+            }
+            return new state(nexte, s.E);
+        }
+		
+		//JApp
+		if(s.e instanceof JApp) {
+            if(last instanceof CHole) {
+                last = new CApp(new CHole(), ((JApp)s.e).fun, new JNull(), ((JCons)((JCons)((JApp)s.e).args).rhs).lhs);
+                return new state(((JCons)((JApp)s.e).args).lhs, last);
+            }
+            else if(last instanceof CIf){
+                ((CIf)last).cond = new CApp(new CHole(), ((JApp)s.e).fun, new JNull(), ((JCons)((JCons)((JApp)s.e).args).rhs).lhs);
+                last = ((CIf)last).cond;
+                return new state(((JCons)((JApp)s.e).args).lhs, s.E);
+            }
+            else if(last instanceof CApp){
+                ((CApp)last).hole = new CApp(new CHole(), ((JApp)s.e).fun, new JNull(), ((JCons)((JCons)((JApp)s.e).args).rhs).lhs);
+                last = ((CApp)last).hole;
+                return new state(((JCons)((JApp)s.e).args).lhs, s.E);
+            }
+        }
+		
+		//JApp hole first
+		if(s.e.isValue() && last instanceof CApp && ((CApp)last).lhs instanceof JNull) {
+            JExpr r = ((CApp)last).rhs;
+            ((CApp)last).lhs = s.e;
+            ((CApp)last).rhs = new JNull();
+            return new state(r, s.E);
+        }
+		//hole second
+		if(s.e.isValue() && last instanceof CApp && ((CApp)last).rhs instanceof JNull) {
+            JExpr nexte = new JNull();
+            Context prev = null;
+            Context temp = s.E;
+            Context next = new CHole();
+
+            nexte = delta(last.plug(s.e));
+
+            // fix the stack
+            if(s.E == last)
+                s.E = new CHole();
+            else {
+                if(s.E instanceof CApp)
+                    next = ((CApp)s.E).hole;
+                else
+                    next = ((CIf)s.E).cond;
+                while(!(next instanceof CHole)) {
+                    prev = temp;
+                    temp = next;
+                    if(temp instanceof CApp)
+                        next = ((CApp)temp).hole;
+                    else
+                        next = ((CIf)temp).cond;
+                }
+                last = prev;
+                if(last instanceof CApp)
+                    ((CApp)last).hole = new CHole();
+                else
+                    ((CIf)last).cond = new CHole();
+            }
+            return new state(nexte, s.E);
+        }
+
+        return new state(new JNum(6969), new CHole());
+	
 	}
 	
 	static public JExpr interp(JExpr e)
 	{
 		state s = inject(e);
-		while (s.e.isValue() == false && !(s.E instanceof CHole))
-		{
+		last = s.E;
+		s = step(s);
+		
+		while (s.e.isValue() == false || !(s.E instanceof CHole))
 			s = step(s);
-			s.e = s.e.step();
-		}
 		
 		return extract(s);
 	}
