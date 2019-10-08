@@ -27,6 +27,18 @@ public class CC0 {
 		return new state(new JNum(6969), new CHole());
 	}
 	
+	static public JExpr interp(JExpr e)
+	{
+		state s = inject(e);
+		while (s.e.isValue() == false && !(s.E instanceof CHole))
+		{
+			s = step(s);
+			s.e = s.e.step();
+		}
+		
+		return extract(s);
+	}
+	
 	static private JExpr delta(JExpr e)
 	{
 		JExpr fun = ((JApp)e).fun;
