@@ -1,15 +1,182 @@
 package sourceCode;
 
-public class Main {
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.FileWriter;
 
-	public static void main(String[] args) {
+public class Main { /* asdf */
+
+	public static void main(String[] args) throws IOException {
 
 		JExpr e = JA("+", JA("*", JN(2), JN(4)), JN(8));
+		
+		emit(e);
 		
 		System.out.println("CC0: " + CC0.interp(e).pp());
 		System.out.println("Big: " + e.interp().pp());
 	}
 
+	public static void emit(JExpr e) throws IOException
+	{
+		System.out.println(e.pp());
+		
+		FileWriter filewriter = new FileWriter("LowLevel.c");
+		PrintWriter printwriter = new PrintWriter(filewriter);
+		
+		printwriter.printf("#include " + '"' + "source.c" + '"' + ";\n");
+		printwriter.printf("#include <stdio.h>\n");
+		printwriter.printf("int main(int argc, char* argv[]) {\n");
+		
+		if (e instanceof JIf)
+		{
+			System.out.println("if");
+			printwriter.printf(printJIf(e));
+		}
+		if (e instanceof JNum)
+		{
+			System.out.println("num");
+			printwriter.printf(printJNum(e));
+		}
+		if (e instanceof JBool) 
+		{
+			System.out.println("bool");
+			printwriter.printf(printJBool(e));
+		}
+		if (e instanceof JApp)
+		{
+			System.out.println("app");
+			printwriter.printf(printJApp(e));
+		}
+		
+		printwriter.printf(";\nreturn 0; \n }\n");
+		
+		printwriter.close();
+	}
+	
+	public static String printJIf(JExpr e)
+	{
+		String line = "";
+		
+		line = line.concat("make_if(");
+		
+		if (((JIf)e).cond instanceof JIf)
+		{
+			line = line.concat(printJIf(((JIf)e).cond));
+		}
+		if (((JIf)e).cond instanceof JApp)
+		{
+			line = line.concat(printJApp(((JIf)e).cond));
+		}
+		if (((JIf)e).cond instanceof JBool)
+		{
+			line = line.concat(printJIf(((JIf)e).cond));
+		}
+		if (((JIf)e).cond instanceof JNum)
+		{
+			line = line.concat(printJIf(((JIf)e).cond));
+		}
+		
+		line = line.concat(", ");
+		
+		if (((JIf)e).tbr instanceof JIf)
+		{
+			line = line.concat(printJIf(((JIf)e).tbr));
+		}
+		if (((JIf)e).tbr instanceof JApp)
+		{
+			line = line.concat(printJApp(((JIf)e).tbr));
+		}
+		if (((JIf)e).tbr instanceof JBool)
+		{
+			line = line.concat(printJIf(((JIf)e).tbr));
+		}
+		if (((JIf)e).tbr instanceof JNum)
+		{
+			line = line.concat(printJIf(((JIf)e).tbr));
+		}
+		
+		line = line.concat(", ");
+		
+		if (((JIf)e).fbr instanceof JIf)
+		{
+			line = line.concat(printJIf(((JIf)e).fbr));
+		}
+		if (((JIf)e).fbr instanceof JApp)
+		{
+			line = line.concat(printJApp(((JIf)e).fbr));
+		}
+		if (((JIf)e).fbr instanceof JBool)
+		{
+			line = line.concat(printJBool(((JIf)e).fbr));
+		}
+		if (((JIf)e).fbr instanceof JNum)
+		{
+			line = line.concat(printJNum(((JIf)e).fbr));
+		}
+		
+		line = line.concat(")");
+		return line;
+	}
+	
+	public static String printJApp(JExpr e)
+	{
+		String line = "";
+		
+		line = line.concat("make_app(");
+		
+		
+		line = line.concat("make_prim(" + (((JPrim)((JApp)e).fun).p + ")"));
+		
+		line = line.concat(", ");
+		
+		if ((((JCons)((JApp)e).args).lhs) instanceof JIf)
+		{
+			line = line.concat(printJIf((((JCons)((JApp)e).args).lhs)));
+		}if ((((JCons)((JApp)e).args).lhs) instanceof JApp)
+		{
+			line = line.concat(printJApp((((JCons)((JApp)e).args).lhs)));
+		}
+		if ((((JCons)((JApp)e).args).lhs) instanceof JBool)
+		{
+			line = line.concat(printJBool((((JCons)((JApp)e).args).lhs)));
+		}
+		if ((((JCons)((JApp)e).args).lhs) instanceof JNum)
+		{
+			line = line.concat(printJNum((((JCons)((JApp)e).args).lhs)));
+		}
+		
+		line = line.concat(", ");
+		
+		if (((JCons)((JCons)((JApp)e).args).rhs).lhs instanceof JIf)
+		{
+			line = line.concat(printJIf(((JCons)((JCons)((JApp)e).args).rhs).lhs));
+		}if (((JCons)((JCons)((JApp)e).args).rhs).lhs instanceof JApp)
+		{
+			line = line.concat(printJApp(((JCons)((JCons)((JApp)e).args).rhs).lhs));
+		}
+		if (((JCons)((JCons)((JApp)e).args).rhs).lhs instanceof JBool)
+		{
+			line = line.concat(printJBool(((JCons)((JCons)((JApp)e).args).rhs).lhs));
+		}
+		if (((JCons)((JCons)((JApp)e).args).rhs).lhs instanceof JNum)
+		{
+			line = line.concat(printJNum(((JCons)((JCons)((JApp)e).args).rhs).lhs));
+		}
+		
+		line = line.concat(")");
+		return line;
+	}
+	
+	public static String printJBool(JExpr e)
+	{
+		return "make_bool(" + ((JBool)e).b + ")";
+	}
+	
+	public static String printJNum(JExpr e)
+	{
+		return "make_num(" + ((JNum)e).n + ")";
+	}
+	
 	static JExpr JN(int n) {
 		return new JNum(n); }
 	static JExpr JB(Boolean b) {
