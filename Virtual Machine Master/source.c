@@ -143,60 +143,74 @@ expr* delta(expr* fun, expr* checked)
 	return make_num(6969);
 }	
 
-void eval(expr* e)
+void eval(expr** e)
 {
 	expr* ok = make_kret();
 
 	while (1)
 	{
-		switch (e->tag)
+		switch ((*e)->tag)
 		{
 		case IF: {
-			Jif* c = (Jif*)e;
-			e = c->c;
+			printf("IF\n");
+			Jif* c = (Jif*)*e;
+			*e = c->c;
 			ok = make_kif(c->t, c->f, ok);
 			break; }
 		case APP: {
-			Japp* c = (Japp*)e;
-			expr* list = make_unchecked(c->arg1, make_unchecked(c->arg2, NULL));
+			printf("APP\n");
+			Japp* c = (Japp*)*e;
+			expr* list = make_unchecked(make_unchecked(NULL, c->arg2), c->arg1);
 
-			e = c->fun;
+			*e = c->fun;
 			ok = make_kapp(NULL, NULL, list, ok);
 			break; }
 		case BOOL:
 		case NUM:
 		case PRIM:
 		{
+			printf("VALUE\n");
 			switch (ok->tag)
 			{
 			case KRET: {
+				printf("KRET\n");
 				return; }
 			case KIF: {
+				printf("KIF\n");
 				Kif* k = (Kif*)ok;
-				e = (boolVal(e)) ? k->t : k->f;
+				*e = (boolVal(*e)) ? k->t : k->f;
 				ok = k->k;
 				break; }
 			case KAPP: {
+				printf("KAPP\n");
 				Kapp* tempK = (Kapp*)ok;
 				expr* funP = tempK->fun;
 				expr* checkedP = tempK->checked;
 
 				if (!funP)
-					funP = e;
+				{
+					funP = *e;
+					tempK->fun = funP;
+				}
 				else
-					checkedP = make_checked(e, checkedP);
+				{
+					checkedP = make_checked(checkedP, *e);
+					tempK->checked = checkedP;
+				}
 
 				if (tempK->unchecked == NULL)
 				{
-					e = delta(funP, checkedP);
+					*e = delta(tempK->fun, tempK->checked);
 					ok = tempK->k;
 					break;
 				}
 				else
 				{
-					Unchecked* uc = (Unchecked*) tempK->unchecked;
-					e = (expr*) uc->data;
-					uc = (Unchecked*) (uc->next);
+					Unchecked* uc = (Unchecked*)tempK->unchecked;
+					*e = uc->data;
+					uc = (Unchecked*)(uc->next);
+					tempK->unchecked = uc;
+					ok = tempK;
 					break;
 				}
 				break;
@@ -209,8 +223,11 @@ void eval(expr* e)
 
 int main(int argc, char* argv)
 {
-	Jnum* num = make_num(4);
+	expr* e = make_app(make_prim("+"), make_app(make_prim("*"), make_num(2), make_num(2)), make_num(5));
 
-	printf("%d tag: %d", num->n, num->h);
+	eval(&e);
+
+	printf("%d", ((Jnum*)e)->n);
+
 	return 0;
 }
