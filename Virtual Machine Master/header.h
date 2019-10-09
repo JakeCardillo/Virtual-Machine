@@ -4,10 +4,10 @@
 
 typedef enum {TRUE, FALSE}Bool;
 
-typedef enum { IF, NUM, APP, BOOL, PRIM, KRET, KIF, KAPP, CHECKED, UNCHECKED }Tag;
+enum Tag { IF, NUM, APP, BOOL, PRIM, KRET, KIF, KAPP, CHECKED, UNCHECKED };
 
 typedef struct {
-	Tag tag;
+	enum Tag tag;
 }expr;
 
 typedef struct {
