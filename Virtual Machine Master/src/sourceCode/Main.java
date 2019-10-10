@@ -189,12 +189,6 @@ public class Main {
 	static JExpr JI(JExpr cond, JExpr tbr, JExpr fbr) {
 		return new JIf(cond, tbr, fbr); }
 
-	static Sexpr SApp(String op, Sexpr lhs, Sexpr rhs) {
-		return new SE_Cons(new SE_Str(op),
-				new SE_Cons(lhs,
-						new SE_Cons(rhs,
-								new SE_MT()))); }
-
 
 	static JExpr desugar(Sexpr se)
 	{
@@ -277,127 +271,7 @@ public class Main {
 		//Error
 		return new JNum(42069);
 	}
-
-	static int testsPassed = 0;
-
-	static void test(Sexpr se, JExpr expected)
-	{
-		JExpr e = desugar(se);
-
-		System.out.println(se.pp() + " desugars to " + e.pp());
-
-		JExpr actual = e.interp();
-		JExpr expVal = expected.interp();
-
-		System.out.println("Actual: " + actual.pp() + "  Expected: " + expVal.pp());
-
-		if (!actual.pp().equals( expVal.pp()))
-			System.out.println("TEST FAILED");
-		else
-			testsPassed++;
-	}
 	
-	static void conTest(JExpr e, JExpr real)
-	{
-		JExpr given = interp(e);
-		JExpr big = Interp(e);
-		
-		System.out.println("Real: " + real.pp() + " Given: " + given.pp() + " Big: " + big.pp());
-		
-		if (!given.isValue())
-		{
-			System.out.println("TEST FAILED");
-			return;
-		}
-		else if (given.pp().equals(real.pp()) && big.pp().equals(real.pp()))
-			testsPassed++;
-		else
-			System.out.println("TEST FAILED");
-		
-		return;
-	}
-	
-	static JExpr findRedex(Context C, JExpr e)
-	{
-		if (e.isValue())
-		{
-			C = new CHole();
-			return e;
-		}
-		
-	
-		if (e instanceof JIf)
-		{
-			//if ec is a value, return 
-			if (((JIf)e).cond.isValue())
-			{
-				C = new CHole();
-				return e;
-			}
-			else
-			{
-				JExpr redex = findRedex(C, ((JIf)e).cond);
-				C = new CIf(((JIf)e).tbr, ((JIf)e).fbr, C);
-				return redex;
-			}
-		}
-		
-		if (e instanceof JApp)
-		{
-			if(((JCons)((JApp)e).args).lhs.isValue() == false) {
-                JExpr redex = findRedex(C, ((JCons)((JApp)e).args).lhs);
-                C = new CApp(C, ((JApp)e).fun, new JNull(), ((JCons)((JCons)((JApp)e).args).rhs).lhs);
-                return redex;
-            }
-            if(((JCons)((JCons)((JApp)e).args).rhs).lhs.isValue() == false) {
-                JExpr redex = findRedex(C, ((JCons)((JCons)((JApp)e).args).rhs).lhs);
-                C = new CApp(C, ((JApp)e).fun, ((JCons)((JApp)e).args).lhs, new JNull());
-                return redex;
-            }
-		}
-		
-		if (e instanceof JFun)
-		{
-			if (sigMap.containsKey(((JFun)e).Name))
-			{
-				Define def = sigMap.get(((JFun)e).Name);
-				JExpr pNode = def.fun.params;
-				JExpr exp = def.exp;
-				JExpr cNode = ((JFun)e).params;
-				
-				while (!(pNode instanceof JNull) && !(cNode instanceof JNull))
-				{
-					exp = exp.subst((JVar)((JCons)pNode).lhs, ((JCons)cNode).rhs);
-					pNode = ((JCons)pNode).rhs;
-					cNode = ((JCons)cNode).rhs;
-				}
-
-				return exp;
-			}
-		}
-		
-		return e;
-	}
-	
-	//small step interpreter
-	static JExpr interp(JExpr e)
-	{
-		 Context C = new CHole();
-		 JExpr e1 = findRedex(C, e);
-		 JExpr e2 = e1.step();
-		 
-		 return C.plug(e2);
-	}
-	
-	//big step interpreter
-	static JExpr Interp(JExpr e)
-	{
-		JExpr e1 = interp(e);
-		if (e == e1)
-			return e;
-		else
-			return Interp(e1);
-	}
 }
 
 
