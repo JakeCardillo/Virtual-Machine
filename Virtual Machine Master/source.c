@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "header.h"
 
+Jdef** map = NULL;
+
 expr* make_if(expr* c, expr* t, expr* f)
 {
 	Jif* p = malloc(sizeof(Jif));
@@ -102,11 +104,12 @@ expr* make_unchecked(expr* next, expr* data)
 	return (expr*) p;
 }
 
-expr* make_fun(char* Name)
+expr* make_fun(char* Name, expr* params)
 {
 	Jfun* p = malloc(sizeof(Jfun));
 	p->h.tag = FUN;
 	p->Name = Name;
+	p->params = params;
 
 	return (expr*)p;
 }
@@ -120,15 +123,49 @@ expr* make_var(char* name)
 	return (expr*)p;
 }
 
-expr* make_def(expr* fun, expr* params, expr* exp)
+expr* make_def(expr* fun, expr* exp)
 {
+	if (inMap(fun))
+		return NULL;
 	Jdef* p = malloc(sizeof(Jdef));
 	p->h.tag = DEF;
 	p->fun = fun;
-	p->params = params;
 	p->exp = exp;
 
 	return (expr*)p;
+}
+
+int pushMap(expr* def)
+{
+	int i;
+	Jdef** temp = malloc(sizeof(map) + sizeof(Jdef*));
+	
+	for (i = 0; i < (sizeof(map) / sizeof(Jdef*)); i++)
+	{
+		temp[i] = map[i];
+	}
+	temp[i] = def;
+	free(map);
+	map = temp;
+}
+
+int inMap(expr* fun)
+{
+	Jfun* f = (Jfun*)fun;
+	Bool found = FALSE;
+
+	if (map == NULL)
+	{
+		map = malloc(sizeof(Jdef*));
+	}
+	else {
+		for (int i = 0; i < (sizeof(map) / sizeof(Jdef*)); i++)
+		{
+			if (strcmp(((Jfun*)map[i]->fun)->Name, f->Name))
+				return i;
+		}
+	}
+	return 0;
 }
 
 Bool boolVal(expr* e)
@@ -194,9 +231,30 @@ void eval(expr** e)
 			*e = c->fun;
 			ok = make_kapp(NULL, NULL, list, ok);
 			break; }
+		case FUN: {
+			printf("FUN\n");
+			Jfun* temp = (Jfun*)*e;
+
+			int index = inMap(temp);
+			if (index)
+			{
+				expr* exp = map[index]->exp;
+				expr* pNode = ((Jfun*)map[index]->fun)->params;
+				expr* cNode = temp->params;
+
+				while (pNode != NULL && cNode != NULL)
+				{
+					exp = subst(exp, ((Checked*)pNode)->data, ((Checked*)cNode)->data);
+					pNode = ((Checked*)pNode)->next;
+					cNode = ((Checked*)cNode)->next;
+				}
+				*e = exp;
+			}
+			
+			break;
+		}
 		case BOOL:
 		case NUM:
-		case FUN:
 		case PRIM:
 		{
 			printf("VALUE\n");
@@ -248,6 +306,37 @@ void eval(expr** e)
 			}
 		}
 		}
+	}
+}
+
+expr* subst(expr* e, expr* x, expr* v)
+{
+	switch (e->tag)
+	{
+	//expressions
+	case IF: {
+		Jif* temp = (Jif*)e;
+		return make_if(subst(temp->c, x, v), subst(temp->t, x, v), subst(temp->f, x, v));
+			break;
+	}
+	case APP: {
+		Japp* temp = (Japp*)e;
+		return make_app(subst(temp->fun, x, v), subst(temp->arg1, x, v), subst(temp->arg2, x, v));
+		break;
+	}
+	case VAR: {
+		if (e == x)
+			return v;
+		else
+			return e;
+		break;
+	}
+	//values
+	case NUM: 
+	case BOOL:
+	case PRIM:
+	case FUN:
+		return e;
 	}
 }
 

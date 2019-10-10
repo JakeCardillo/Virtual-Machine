@@ -62,6 +62,7 @@ typedef struct {
 typedef struct {
 	expr h;
 	char* Name;
+	expr* params;
 }Jfun;
 
 typedef struct {
@@ -71,5 +72,5 @@ typedef struct {
 
 typedef struct {
 	expr h;
-	expr* fun, *params, *exp;
+	expr* fun, *exp;
 }Jdef;
