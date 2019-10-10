@@ -175,3 +175,45 @@ class JApp implements JExpr {
 		return this;
 	}
 }
+
+class JFun implements JExpr
+{
+	JFun(String Name) {
+		this.Name = Name;
+	}
+		
+	public Boolean isValue() {
+		return true; }
+	public String pp() {
+		return Name;
+	}
+	public JExpr interp() {
+		return this;
+	}
+	public JExpr step() {
+		return this;
+	}
+	
+	String Name;
+}
+
+class JVar implements JExpr
+{
+	JVar(String name) {
+		this.name = name;
+	}
+	
+	public Boolean isValue() {
+		return false; }
+	public String pp() {
+		return name;
+	}
+	public JExpr interp() {
+		return this;
+	}
+	public JExpr step() {
+		return this;
+	}
+	
+	String name;
+}

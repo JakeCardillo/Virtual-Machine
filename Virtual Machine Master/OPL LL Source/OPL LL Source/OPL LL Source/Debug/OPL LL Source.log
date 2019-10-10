@@ -1,0 +1,4 @@
+﻿  source.c
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(212,27): warning C4133:  '=': incompatible types - from 'Unchecked *' to 'expr *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(213,16): warning C4133:  '=': incompatible types - from 'Kapp *' to 'expr *'
+  OPL LL Source.vcxproj -> C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\Debug\OPL LL Source.exe
