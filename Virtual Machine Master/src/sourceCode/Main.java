@@ -2,12 +2,15 @@ package sourceCode;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.io.FileWriter;
 
-public class Main { /* asdf */
-
+public class Main {
+	
+	public static HashMap<String, JExpr> map = new HashMap<String, JExpr>();
+	
 	public static void main(String[] args) throws IOException {
-
+		
 		JExpr e = JA("+", JA("*", JN(2), JN(4)), JN(8));
 		
 		emit(e);
