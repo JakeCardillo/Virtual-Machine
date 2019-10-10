@@ -5,6 +5,7 @@ public interface JExpr {
 	public String pp();
 	public JExpr interp();
 	public JExpr step();
+	public JExpr subst(JVar x, JExpr v);
 }
 
 class JNull implements JExpr {
@@ -17,6 +18,9 @@ class JNull implements JExpr {
 		return this; } 
 	public JExpr step() {
 		return this; }
+	public JExpr subst(JVar x, JExpr v) {
+		return this;
+	}
 }
 
 class JCons implements JExpr {
@@ -32,6 +36,9 @@ class JCons implements JExpr {
 		return new JCons(this.lhs.interp(), this.rhs.interp()); }
 	public JExpr step() {
 		return lhs.step(); }
+	public JExpr subst(JVar x, JExpr v) {
+		return new JCons(lhs.subst(x, v), rhs.subst(x, v));
+	}
 }
 
 class JPrim implements JExpr {
@@ -46,6 +53,9 @@ class JPrim implements JExpr {
 		return this; } 
 	public JExpr step() {
 		return this; }
+	public JExpr subst(JVar x, JExpr v) {
+		return this;
+	}
 }
 
 class JNum implements JExpr {
@@ -60,6 +70,9 @@ class JNum implements JExpr {
 		return this; } 
 	public JExpr step() {
 		return this; }
+	public JExpr subst(JVar x, JExpr v) {
+		return this;
+	}
 }
 
 class JBool implements JExpr {
@@ -74,6 +87,9 @@ class JBool implements JExpr {
 		return this; } 
 	public JExpr step() {
 		return this; }
+	public JExpr subst(JVar x, JExpr v) { 
+		return this;
+	}
 }
 
 class JIf implements JExpr {
@@ -108,6 +124,9 @@ class JIf implements JExpr {
 			return this;
 		}
 
+	}
+	public JExpr subst(JVar x, JExpr v) {
+		return new JIf(cond.subst(x, v), tbr.subst(x, v), fbr.subst(x, v));
 	}
 }
 
@@ -174,6 +193,9 @@ class JApp implements JExpr {
 		}
 		return this;
 	}
+	public JExpr subst(JVar x, JExpr v) {
+		return new JApp(fun.subst(x, v), args.subst(x, v));
+	}
 }
 
 class JFun implements JExpr
@@ -191,6 +213,9 @@ class JFun implements JExpr
 		return this;
 	}
 	public JExpr step() {
+		return this;
+	}
+	public JExpr subst(JVar x, JExpr v) {
 		return this;
 	}
 	
@@ -213,6 +238,12 @@ class JVar implements JExpr
 	}
 	public JExpr step() {
 		return this;
+	}
+	public JExpr subst(JVar x, JExpr v) { 
+		if (this == x)
+			return v;
+		else
+			return this;
 	}
 	
 	String name;
