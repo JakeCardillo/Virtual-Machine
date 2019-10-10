@@ -151,14 +151,12 @@ expr* make_var(char* name)
 }
 
 //push def into map of defs
-int pushMap(expr* def)
+void pushMap(expr* def)
 {
 	Map* temp = malloc(sizeof(Map));
 	temp->def = def;
 	temp->next = map;
 	map = temp;
-
-	return 1;
 }
 
 //check if fun is in map, return index
@@ -167,20 +165,14 @@ expr* inMap(expr* fun)
 	Jfun* f = (Jfun*)fun;
 	Map* temp = map;
 
-	if (map == NULL)
+	while (temp != NULL)
 	{
-		map = malloc(sizeof(Jdef*));
-	}
-	else {
-		while (temp != NULL)
+		if (strcmp(((Jfun*)temp->def->fun)->Name, f->Name) == 0)
 		{
-			if (strcmp(((Jfun*)temp->def->fun)->Name, f->Name) == 0)
-			{
-				return temp->def;
-			}
-			else
-				temp = temp->next;
+			return temp->def;
 		}
+		else
+			temp = temp->next;
 	}
 	return NULL;
 }
@@ -189,12 +181,17 @@ expr* inMap(expr* fun)
 expr* make_def(expr* fun, expr* exp)
 {
 	printf("make_def\n");
+
 	if (inMap(fun))
 		return NULL;
+	printf("before\n");
 	Jdef* p = malloc(sizeof(Jdef));
+	printf("malloc\n");
 	p->h.tag = DEF;
 	p->fun = fun;
+	printf("fun\n");
 	p->exp = exp;
+	printf("exp\n");
 
 	pushMap(p);
 
@@ -292,7 +289,7 @@ void eval(expr** e)
 				expr* exp = ((Jdef*)def)->exp;
 				expr* pNode = ((Jfun*)((Jdef*)def)->fun)->params;
 				expr* cNode = temp->params;
-				expr* envir = NULL;
+				expr* envir = env;
 
 				printf("pNode: %d next: %d\n", pNode->tag, ((Checked*)pNode)->next->tag);
 
@@ -428,8 +425,15 @@ int main(int argc, char* argv)
 	make_def(make_fun("Test", make_checked(make_var("var1"), make_checked(make_var("var2"), NULL))),
 		make_app(make_prim("*"), make_var("var1"), make_var("var2")));
 
+	printf("tests");
+
+	make_def(make_fun("Scope", make_checked(make_var("num"), make_checked(make_var("num2"), NULL))),
+		make_app(make_prim("+"), make_var("num"), make_var("var1")));
+
 	printf("made\n");
-	expr* f = make_fun("Test", make_checked(make_num(3), make_checked(make_num(4), NULL)));
+	expr* f = make_fun("Test", make_checked(make_num(3), 
+		make_checked(make_fun("Scope", make_checked(make_num(3), make_checked(make_num(4), NULL))), NULL)));
+
 	eval(&f);
 
 	printf("%d", ((Jnum*)f)->n);
