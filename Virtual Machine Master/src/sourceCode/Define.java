@@ -1,17 +1,15 @@
 package sourceCode;
 
 public class Define {
-	JExpr fun;
-	JExpr params;
+	JFun fun;
 	JExpr exp;
 	
-	Define(JExpr fun, JExpr params, JExpr exp) {
+	Define(JFun fun, JExpr exp) {
 		this.fun = fun;
-		this.params = params;
 		this.exp = exp;
 	}
 	
 	public String pp() {
-		return ("define (" + fun.pp() + ", " + params.pp() + ") (" + exp.pp() + ")");
+		return ("define " + fun.pp() + "(" + exp.pp() + ")");
 	}
 }

@@ -200,14 +200,15 @@ class JApp implements JExpr {
 
 class JFun implements JExpr
 {
-	JFun(String Name) {
+	JFun(String Name, JExpr params) {
 		this.Name = Name;
+		this.params = params;
 	}
 		
 	public Boolean isValue() {
 		return true; }
 	public String pp() {
-		return Name;
+		return "(" + Name + params.pp() + ")";
 	}
 	public JExpr interp() {
 		return this;
@@ -220,6 +221,7 @@ class JFun implements JExpr
 	}
 	
 	String Name;
+	public JExpr params;
 }
 
 class JVar implements JExpr

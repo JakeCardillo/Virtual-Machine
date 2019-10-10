@@ -7,7 +7,7 @@ import java.io.FileWriter;
 
 public class Main {
 	
-	public static HashMap<String, JExpr> map = new HashMap<String, JExpr>();
+	public static HashMap<String, Define> sigMap = new HashMap<String, Define>();
 	
 	public static void main(String[] args) throws IOException {
 		
@@ -189,22 +189,6 @@ public class Main {
 	static JExpr JI(JExpr cond, JExpr tbr, JExpr fbr) {
 		return new JIf(cond, tbr, fbr); }
 
-
-	static Sexpr SN(int n) {
-		return new SE_Num(n); }
-	static Sexpr SA(Sexpr lhs, Sexpr rhs) {
-		return SApp("+", lhs, rhs); }
-	static Sexpr SM(Sexpr lhs, Sexpr rhs) {
-		return SApp("*", lhs, rhs); }
-	static Sexpr SS(Sexpr lhs, Sexpr rhs) {
-		return SApp("-", lhs, rhs); }
-	static Sexpr SIf(Sexpr cond, Sexpr lhs, Sexpr rhs) {
-	    return new SE_Cons(new SE_Str("if"),
-	                       new SE_Cons(cond,
-	                                   new SE_Cons(lhs,
-	                                               new SE_Cons(rhs,
-	                                                           new SE_MT())))); }
-
 	static Sexpr SApp(String op, Sexpr lhs, Sexpr rhs) {
 		return new SE_Cons(new SE_Str(op),
 				new SE_Cons(lhs,
@@ -372,9 +356,30 @@ public class Main {
             }
 		}
 		
+		if (e instanceof JFun)
+		{
+			if (sigMap.containsKey(((JFun)e).Name))
+			{
+				Define def = sigMap.get(((JFun)e).Name);
+				JExpr pNode = def.fun.params;
+				JExpr exp = def.exp;
+				JExpr cNode = ((JFun)e).params;
+				
+				while (!(pNode instanceof JNull) && !(cNode instanceof JNull))
+				{
+					exp = exp.subst((JVar)((JCons)pNode).lhs, ((JCons)cNode).rhs);
+					pNode = ((JCons)pNode).rhs;
+					cNode = ((JCons)cNode).rhs;
+				}
+
+				return exp;
+			}
+		}
+		
 		return e;
 	}
 	
+	//small step interpreter
 	static JExpr interp(JExpr e)
 	{
 		 Context C = new CHole();
@@ -384,6 +389,7 @@ public class Main {
 		 return C.plug(e2);
 	}
 	
+	//big step interpreter
 	static JExpr Interp(JExpr e)
 	{
 		JExpr e1 = interp(e);
