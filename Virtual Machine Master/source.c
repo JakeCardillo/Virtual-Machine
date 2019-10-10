@@ -75,7 +75,7 @@ expr* make_kret()
 }
 
 //make kif object
-expr* make_kif(expr* t, expr* f, expr* k)
+expr* make_kif(expr* t, expr* f, expr* k, expr* env)
 {
 	printf("make_kif\n");
 	Kif* p = malloc(sizeof(Kif));
@@ -83,12 +83,13 @@ expr* make_kif(expr* t, expr* f, expr* k)
 	p->t = t;
 	p->f = f;
 	p->k = k;
+	p->env = env;
 
 	return (expr*) p;
 }
 
 //make kapp object
-expr* make_kapp(expr* fun, expr* checked, expr* unchecked, expr* k)
+expr* make_kapp(expr* fun, expr* checked, expr* unchecked, expr* k, expr* env)
 {
 	printf("make_kapp\n");
 	Kapp* p = malloc(sizeof(Kapp));
@@ -97,6 +98,7 @@ expr* make_kapp(expr* fun, expr* checked, expr* unchecked, expr* k)
 	p->checked = checked;
 	p->unchecked = unchecked;
 	p->k = k;
+	p->env = env;
 
 	return (expr*) p;
 }
@@ -270,7 +272,7 @@ void eval(expr** e)
 			printf("IF\n");
 			Jif* c = (Jif*)* e;
 			*e = c->c;
-			ok = make_kif(c->t, c->f, ok);
+			ok = make_kif(c->t, c->f, ok, env);
 			break; }
 		case APP: {
 			printf("APP\n");
@@ -278,7 +280,7 @@ void eval(expr** e)
 			expr* list = make_unchecked(c->arg1, make_unchecked(c->arg2, NULL));
 
 			*e = c->fun;
-			ok = make_kapp(NULL, NULL, list, ok);
+			ok = make_kapp(NULL, NULL, list, ok, env);
 			break; }
 		case FUN: {
 			printf("FUN\n");
@@ -345,6 +347,7 @@ void eval(expr** e)
 				printf("KIF\n");
 				Kif* k = (Kif*)ok;
 				*e = (boolVal(*e)) ? k->t : k->f;
+				env = k->env;
 				ok = k->k;
 				break; }
 			case KAPP: {
@@ -368,6 +371,7 @@ void eval(expr** e)
 				{
 					*e = delta(tempK->fun, tempK->checked);
 					ok = tempK->k;
+					env = tempK->k;
 					break;
 				}
 				else
@@ -421,12 +425,6 @@ expr* subst(expr* e, expr* x, expr* v)
 
 int main(int argc, char* argv)
 {
-	expr* e = make_app(make_prim("+"), make_app(make_prim("*"), make_num(2), make_num(2)), make_num(5));
-
-	eval(&e);
-
-	printf("%d", ((Jnum*)e)->n);
-
 	make_def(make_fun("Test", make_checked(make_var("var1"), make_checked(make_var("var2"), NULL))),
 		make_app(make_prim("*"), make_var("var1"), make_var("var2")));
 

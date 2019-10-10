@@ -41,12 +41,12 @@ typedef struct {
 
 typedef struct {
 	expr h;
-	expr* t, *f, *k;
+	expr* t, *f, *k, *env;
 }Kif;
 
 typedef struct {
 	expr h;
-	expr* fun, *checked, *unchecked, *k;
+	expr* fun, *checked, *unchecked, *k, *env;
 }Kapp;
 
 typedef struct {
