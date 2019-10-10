@@ -102,6 +102,35 @@ expr* make_unchecked(expr* next, expr* data)
 	return (expr*) p;
 }
 
+expr* make_fun(char* Name)
+{
+	Jfun* p = malloc(sizeof(Jfun));
+	p->h.tag = FUN;
+	p->Name = Name;
+
+	return (expr*)p;
+}
+
+expr* make_var(char* name)
+{
+	Jvar* p = malloc(sizeof(Jvar));
+	p->h.tag = VAR;
+	p->name = name;
+
+	return (expr*)p;
+}
+
+expr* make_def(expr* fun, expr* params, expr* exp)
+{
+	Jdef* p = malloc(sizeof(Jdef));
+	p->h.tag = DEF;
+	p->fun = fun;
+	p->params = params;
+	p->exp = exp;
+
+	return (expr*)p;
+}
+
 Bool boolVal(expr* e)
 {
 	switch (e->tag) {
@@ -167,6 +196,7 @@ void eval(expr** e)
 			break; }
 		case BOOL:
 		case NUM:
+		case FUN:
 		case PRIM:
 		{
 			printf("VALUE\n");
