@@ -289,7 +289,7 @@ void eval(expr** e)
 				expr* exp = ((Jdef*)def)->exp;
 				expr* pNode = ((Jfun*)((Jdef*)def)->fun)->params;
 				expr* cNode = temp->params;
-				expr* envir = env;
+				expr* envir = NULL;
 
 				printf("pNode: %d next: %d\n", pNode->tag, ((Checked*)pNode)->next->tag);
 
@@ -428,7 +428,7 @@ int main(int argc, char* argv)
 	printf("tests");
 
 	make_def(make_fun("Scope", make_checked(make_var("num"), make_checked(make_var("num2"), NULL))),
-		make_app(make_prim("+"), make_var("num"), make_var("var1")));
+		make_app(make_prim("+"), make_var("num"), make_var("num2")));
 
 	printf("made\n");
 	expr* f = make_fun("Test", make_checked(make_num(3), 
