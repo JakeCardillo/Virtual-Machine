@@ -12,6 +12,7 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		
 		JExpr e = JA("+", JA("*", JN(2), JN(4)), JN(8));
+		//JExpr e = JI(JB(false), JN(8), JA("*", JN(8), JN(7)));
 		
 		emit(e);
 		
@@ -72,11 +73,11 @@ public class Main {
 		}
 		if (((JIf)e).cond instanceof JBool)
 		{
-			line = line.concat(printJIf(((JIf)e).cond));
+			line = line.concat(printJBool(((JIf)e).cond));
 		}
 		if (((JIf)e).cond instanceof JNum)
 		{
-			line = line.concat(printJIf(((JIf)e).cond));
+			line = line.concat(printJNum(((JIf)e).cond));
 		}
 		
 		line = line.concat(", ");
@@ -91,11 +92,11 @@ public class Main {
 		}
 		if (((JIf)e).tbr instanceof JBool)
 		{
-			line = line.concat(printJIf(((JIf)e).tbr));
+			line = line.concat(printJBool(((JIf)e).tbr));
 		}
 		if (((JIf)e).tbr instanceof JNum)
 		{
-			line = line.concat(printJIf(((JIf)e).tbr));
+			line = line.concat(printJNum(((JIf)e).tbr));
 		}
 		
 		line = line.concat(", ");
@@ -219,7 +220,7 @@ public class Main {
 					desugar(new SE_Cons(((SE_Cons)se).lhs, 
 							((SE_Cons)((SE_Cons)se).rhs).rhs)));
 
-		//('* lhs rhs) = (+ desugar(lhs) desugar(rhs))
+		//('* lhs rhs) = (* desugar(lhs) desugar(rhs))
 		if ( se instanceof SE_Cons
 				&& ((SE_Cons)se).lhs instanceof SE_Str
 				&& ((SE_Str)((SE_Cons)se).lhs).s.equals("*")
