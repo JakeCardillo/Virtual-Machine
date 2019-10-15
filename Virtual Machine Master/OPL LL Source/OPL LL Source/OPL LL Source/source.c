@@ -184,14 +184,10 @@ expr* make_def(expr* fun, expr* exp)
 
 	if (inMap(fun))
 		return NULL;
-	printf("before\n");
 	Jdef* p = malloc(sizeof(Jdef));
-	printf("malloc\n");
 	p->h.tag = DEF;
 	p->fun = fun;
-	printf("fun\n");
 	p->exp = exp;
-	printf("exp\n");
 
 	pushMap(p);
 
@@ -262,7 +258,6 @@ void eval(expr** e)
 
 	while (1)
 	{
-		printf("e tag: %d\n", (*e)->tag);
 		switch ((*e)->tag)
 		{
 		case IF: {
@@ -291,20 +286,14 @@ void eval(expr** e)
 				expr* cNode = temp->params;
 				expr* envir = NULL;
 
-				printf("pNode: %d next: %d\n", pNode->tag, ((Checked*)pNode)->next->tag);
-
 				while (pNode != NULL && cNode != NULL)
 				{
-					printf("ad");
-					printf("%d %d", ((Checked*)pNode)->data->tag, ((Checked*)cNode)->data->tag);
 					envir = make_env(((Checked*)pNode)->data, ((Checked*)cNode)->data, envir);
 					pNode = ((Checked*)pNode)->next;
 					cNode = ((Checked*)cNode)->next;
-					printf("as");
 				}
 				*e = exp;
 				env = envir;
-				printf("asd");
 			}
 			break;
 		}
@@ -313,15 +302,10 @@ void eval(expr** e)
 			Jvar* temp = (Jvar*)* e;
 			expr* nav = env;
 
-			printf("%s\n", temp->name);
-
 			while (nav != NULL)
 			{
-				printf("1");
-				printf("nav: %s  temp: %s\n", ((Jvar*)((Jenv*)nav)->var)->name, temp->name);
 				if (strcmp(((Jvar*)((Jenv*)nav)->var)->name, temp->name) == 0)
 				{
-					printf("name match\n");
 					*e = ((Jenv*)nav)->val;
 					nav = NULL;
 				}

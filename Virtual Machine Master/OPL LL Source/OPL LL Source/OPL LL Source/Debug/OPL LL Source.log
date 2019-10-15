@@ -1,18 +1,18 @@
 ﻿  source.c
 C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(157,17): warning C4133:  '=': incompatible types - from 'expr *' to 'Jdef *'
 C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(172,20): warning C4133:  'return': incompatible types - from 'Jdef *' to 'expr *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(196,11): warning C4133:  'function': incompatible types - from 'Jdef *' to 'expr *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(272,37): warning C4133:  'function': incompatible types - from 'Jenv *' to 'expr *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(280,44): warning C4133:  'function': incompatible types - from 'Jenv *' to 'expr *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(285,26): warning C4133:  'function': incompatible types - from 'Jfun *' to 'expr *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(300,78): warning C4047:  'function': 'expr **' differs in levels of indirection from 'expr *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(300,78): warning C4024:  'make_env': different types for formal and actual parameter 3
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(306,16): warning C4133:  '=': incompatible types - from 'expr *' to 'Jenv *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(329,30): warning C4047:  '=': 'expr *' differs in levels of indirection from 'expr **'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(347,17): warning C4133:  '=': incompatible types - from 'expr *' to 'Jenv *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(371,20): warning C4133:  '=': incompatible types - from 'expr *' to 'Jenv *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(379,27): warning C4133:  '=': incompatible types - from 'Unchecked *' to 'expr *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(380,16): warning C4133:  '=': incompatible types - from 'Kapp *' to 'expr *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(314,1): warning C4133:  'initializing': incompatible types - from 'Jenv *' to 'expr *'
-C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(421): warning C4715:  'subst': not all control paths return a value
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(192,11): warning C4133:  'function': incompatible types - from 'Jdef *' to 'expr *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(267,37): warning C4133:  'function': incompatible types - from 'Jenv *' to 'expr *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(275,44): warning C4133:  'function': incompatible types - from 'Jenv *' to 'expr *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(280,26): warning C4133:  'function': incompatible types - from 'Jfun *' to 'expr *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(291,78): warning C4047:  'function': 'expr **' differs in levels of indirection from 'expr *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(291,78): warning C4024:  'make_env': different types for formal and actual parameter 3
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(296,16): warning C4133:  '=': incompatible types - from 'expr *' to 'Jenv *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(313,30): warning C4047:  '=': 'expr *' differs in levels of indirection from 'expr **'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(331,17): warning C4133:  '=': incompatible types - from 'expr *' to 'Jenv *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(355,20): warning C4133:  '=': incompatible types - from 'expr *' to 'Jenv *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(363,27): warning C4133:  '=': incompatible types - from 'Unchecked *' to 'expr *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(364,16): warning C4133:  '=': incompatible types - from 'Kapp *' to 'expr *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(303,1): warning C4133:  'initializing': incompatible types - from 'Jenv *' to 'expr *'
+C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\OPL LL Source\source.c(405): warning C4715:  'subst': not all control paths return a value
   OPL LL Source.vcxproj -> C:\Users\jcard\git\Virtual-Machine\Virtual Machine Master\OPL LL Source\OPL LL Source\Debug\OPL LL Source.exe
