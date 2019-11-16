@@ -127,12 +127,12 @@ expr* make_unchecked(expr* data, expr* next)
 	return (expr*) p;
 }
 
-//make fun object
-expr* make_fun(char* Name, expr* params)
+//make lambda object
+expr* make_lambda(char* Name, expr* params)
 {
 	printf("make_fun\n");
-	Jfun* p = malloc(sizeof(Jfun));
-	p->h.tag = FUN;
+	lambda* p = malloc(sizeof(lambda));
+	p->h.tag = LAMBDA;
 	p->Name = Name;
 	p->params = params;
 
@@ -162,12 +162,12 @@ void pushMap(expr* def)
 //check if fun is in map, return index
 expr* inMap(expr* fun)
 {
-	Jfun* f = (Jfun*)fun;
+	lambda* f = (lambda*)fun;
 	Map* temp = map;
 
 	while (temp != NULL)
 	{
-		if (strcmp(((Jfun*)temp->def->fun)->Name, f->Name) == 0)
+		if (strcmp(((lambda*)temp->def->fun)->Name, f->Name) == 0)
 		{
 			return temp->def;
 		}
@@ -274,15 +274,15 @@ void eval(expr** e)
 			*e = c->fun;
 			ok = make_kapp(NULL, NULL, list, ok, env);
 			break; }
-		case FUN: {
-			printf("FUN\n");
-			Jfun* temp = (Jfun*)* e;
+		case LAMBDA: {
+			printf("LAMBDA\n");
+			lambda* temp = (lambda*)* e;
 			expr* def = inMap(temp);
 
 			if (def != NULL)
 			{
 				expr* exp = ((Jdef*)def)->exp;
-				expr* pNode = ((Jfun*)((Jdef*)def)->fun)->params;
+				expr* pNode = ((lambda*)((Jdef*)def)->fun)->params;
 				expr* cNode = temp->params;
 				expr* envir = NULL;
 
@@ -399,7 +399,7 @@ expr* subst(expr* e, expr* x, expr* v)
 	case NUM: 
 	case BOOL:
 	case PRIM:
-	case FUN:
+	case LAMBDA:
 		return e;
 	}
 }
