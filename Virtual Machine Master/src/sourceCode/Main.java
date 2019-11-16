@@ -7,6 +7,7 @@ import java.io.FileWriter;
 
 public class Main {
 	
+	public static int tests_passed = 0;
 	public static HashMap<String, Define> sigMap = new HashMap<String, Define>();
 	
 	public static void main(String[] args) throws IOException {
@@ -18,6 +19,10 @@ public class Main {
 		
 		System.out.println("CC0: " + CC0.interp(e).pp());
 		System.out.println("Big: " + e.interp().pp());
+		
+		test_j3();
+		
+		System.out.println("Tests passed: " + tests_passed);
 	}
 
 	public static void emit(JExpr e) throws IOException
@@ -50,6 +55,11 @@ public class Main {
 		{
 			System.out.println("app");
 			printwriter.printf(printJApp(e));
+		}
+		if (e instanceof lambda)
+		{
+			System.out.println("lambda");
+			printwriter.printf(printLambda(e));
 		}
 		
 		printwriter.printf(";\nreturn 0; \n }\n");
@@ -171,6 +181,44 @@ public class Main {
 		return line;
 	}
 	
+	public static String printLambda(JExpr e)
+	{
+		String line = "";
+		
+		line = line.concat("make_lambda(");
+		line = line.concat(printJCons(((lambda)e).vars));
+		line = line.concat(")");
+		
+		return line;
+	}
+	
+	public static String printJCons(JExpr e)
+	{
+		String line = "";
+		
+		if(e instanceof JCons) {
+			if(((JCons)e).lhs instanceof JIf) {
+				line = line.concat(printJIf(((JCons)e).lhs));
+			}
+			if(((JCons)e).lhs instanceof JApp) {
+				line = line.concat(printJApp(((JCons)e).lhs));
+			}
+			if(((JCons)e).lhs instanceof JBool) {
+				line = line.concat(printJBool(((JCons)e).lhs));
+			}
+			if(((JCons)e).lhs instanceof JNum) {
+				line = line.concat(printJNum(((JCons)e).lhs));
+			}
+			if(((JCons)e).lhs instanceof JVar) {
+				line = line.concat("make_var(" + ((JVar)((JCons)e).lhs).name + ")");
+			}
+		}
+		
+		line = line.concat(printJCons(((JCons)e).rhs));
+		
+		return line;
+	}
+	
 	public static String printJBool(JExpr e)
 	{
 		return "make_bool(" + ((JBool)e).b + ")";
@@ -268,11 +316,71 @@ public class Main {
 			return new JIf( desugar(((SE_Cons)((SE_Cons)se).rhs).lhs),
 					desugar(((SE_Cons)((SE_Cons)((SE_Cons)se).rhs).rhs).lhs),
 					desugar(((SE_Cons)((SE_Cons)((SE_Cons)((SE_Cons)se).rhs).rhs).rhs).lhs) ); }
+		
+		//lambda
+		if(se instanceof SE_Cons 
+				&& ((SE_Cons)se).lhs instanceof SE_Str
+				&& ((SE_Str)((SE_Cons)se).lhs).s.equals("let")
+				&& ((SE_Cons)se).rhs instanceof SE_Cons)
+			return new lambda(((SE_Str)((SE_Cons)((SE_Cons)se).rhs).lhs).s, 
+					desugar(((SE_Cons)((SE_Cons)((SE_Cons)se).rhs).rhs).lhs), 
+					desugar(((SE_Cons)((SE_Cons)((SE_Cons)((SE_Cons)se).rhs).rhs).rhs).lhs));
 
 		//Error
 		return new JNum(42069);
 	}
 	
+	public static void test_j3()
+	{
+		JExpr e1 = JA("+", JN(7), new JVar("x"));
+		JExpr e2 = JA("*", JN(7), new JVar("x"));
+		JExpr e3 = JA("+", new JVar("x"), JN(7));
+		JExpr e4 = JA("*", new JVar("x"), JN(7));
+		
+		JExpr function = new lambda("func", new JCons(new JVar("x"), new JNull()), e1);
+		JExpr result = function.subst(new JVar("x"), JN(5));
+		if (result.interp().pp().equals("12"))
+			tests_passed++;
+		
+		function = new lambda("func", new JCons(new JVar("x"), new JNull()), e2);
+		result = function.subst(new JVar("x"), JN(5));
+		if (result.interp().pp().equals("35"))
+			tests_passed++;
+		
+		function = new lambda("func", new JCons(new JVar("x"), new JNull()), e3);
+		result = function.subst(new JVar("x"), JN(5));
+		if (result.interp().pp().equals("12"))
+			tests_passed++;
+		
+		function = new lambda("func", new JCons(new JVar("x"), new JNull()), e4);
+		result = function.subst(new JVar("x"), JN(5));
+		if (result.interp().pp().equals("35"))
+			tests_passed++;
+		
+		Sexpr se = Slambda(new SE_Str("new func"), new SE_MT(), SA(SN(3), SN(5)));
+		JExpr test = desugar(se);
+		if (test.subst(null, null).interp().pp().equals("8"))
+			tests_passed++;
+	}
+	
+	public static Sexpr SN(int n)
+	{
+		return new SE_Num(n);
+	}
+	public static Sexpr SA(Sexpr l, Sexpr r)
+	{
+		return new SE_Cons(new SE_Str("+"), new SE_Cons(l, new SE_Cons(r, new SE_MT())));
+	}
+	public static Sexpr SM(Sexpr l, Sexpr r)
+	{
+		return new SE_Cons(new SE_Str("*"), new SE_Cons(l, new SE_Cons(r, new SE_MT())));
+	}
+	public static Sexpr Slambda(Sexpr name, Sexpr e1, Sexpr e2)
+	{
+		return new SE_Cons(new SE_Str("let"), new SE_Cons(name, new SE_Cons(e1, new SE_Cons(e2, new SE_MT()))));
+	}
+	
 }
+
 
 

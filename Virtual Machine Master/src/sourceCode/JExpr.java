@@ -198,17 +198,18 @@ class JApp implements JExpr {
 	}
 }
 
-class JFun implements JExpr
+class lambda implements JExpr
 {
-	JFun(String Name, JExpr params) {
+	lambda(String Name, JExpr vars, JExpr e) {
 		this.Name = Name;
-		this.params = params;
+		this.vars = vars;
+		this.e = e;
 	}
 		
 	public Boolean isValue() {
 		return true; }
 	public String pp() {
-		return "(" + Name + params.pp() + ")";
+		return "(" + Name + " " + vars.pp() + " " + e.pp() + ")";
 	}
 	public JExpr interp() {
 		return this;
@@ -217,11 +218,12 @@ class JFun implements JExpr
 		return this;
 	}
 	public JExpr subst(JVar x, JExpr v) {
-		return this;
+		return this.e.subst(x, v);
 	}
 	
 	String Name;
-	public JExpr params;
+	public JExpr vars;
+	public JExpr e;
 }
 
 class JVar implements JExpr
@@ -242,7 +244,7 @@ class JVar implements JExpr
 		return this;
 	}
 	public JExpr subst(JVar x, JExpr v) { 
-		if (this == x)
+		if (this.name.equals(x.name))
 			return v;
 		else
 			return this;

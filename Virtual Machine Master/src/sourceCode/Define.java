@@ -1,10 +1,10 @@
 package sourceCode;
 
 public class Define {
-	JFun fun;
+	lambda fun;
 	JExpr exp;
 	
-	Define(JFun fun, JExpr exp) {
+	Define(lambda fun, JExpr exp) {
 		this.fun = fun;
 		this.exp = exp;
 	}
