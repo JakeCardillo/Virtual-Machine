@@ -207,6 +207,18 @@ expr* make_env(expr* var, expr* val, expr** next)
 	return (expr*)p;
 }
 
+//make closure object
+expr* make_clos(expr* lam, expr* env)
+{
+	printf("make_clos\n");
+	Closure* p = malloc(sizeof(Closure));
+	p->h.tag = CLOS;
+	p->lam = lam;
+	p->env = env;
+
+	return (expr*)p;
+}
+
 //is e a val?
 Bool boolVal(expr* e)
 {
@@ -276,6 +288,12 @@ void eval(expr** e)
 			break; }
 		case LAMBDA: {
 			printf("LAMBDA\n");
+
+			lambda* temp = (lambda*)e;
+
+			e = make_clos(temp, env);
+			env = NULL;
+			/*
 			lambda* temp = (lambda*)* e;
 			expr* def = inMap(temp);
 
@@ -294,7 +312,7 @@ void eval(expr** e)
 				}
 				*e = exp;
 				env = envir;
-			}
+			}*/
 			break;
 		}
 		case VAR: {
@@ -314,6 +332,7 @@ void eval(expr** e)
 			}
 			break;
 		}
+		case CLOS:
 		case BOOL:
 		case NUM:
 		case PRIM:
@@ -336,6 +355,47 @@ void eval(expr** e)
 				Kapp* tempK = (Kapp*)ok;
 				expr* funP = tempK->fun;
 				expr* checkedP = tempK->checked;
+
+				//closure
+				if (checkedP->tag == CLOS)
+				{
+					expr* checkedParams = NULL;
+					expr* uncheckedParams = ((lambda*)((Closure*)((Checked*)checkedP)->data)->lam)->params;
+
+					while (uncheckedParams != NULL)
+					{
+						if (((Checked*)uncheckedParams)->data->tag == VAR)
+						{
+							Jenv* thisEnv = (Jenv*) (((Closure*)((Checked*)checkedP)->data)->env);
+							while (thisEnv != NULL)
+							{
+								if (((Jvar*)((Unchecked*)uncheckedParams)->data)->name == thisEnv->var->name)
+								{
+									((Checked*)uncheckedParams)->data = thisEnv->val;
+									thisEnv = NULL;
+								}
+								else
+									thisEnv = thisEnv->next;
+							}
+						}
+						if (checkedParams == NULL)
+							checkedParams = make_checked(((Checked*)uncheckedParams)->data, NULL);
+						else
+						{
+							expr* temp = (expr*)checkedParams;
+							while (((Checked*)temp)->next != NULL)
+							{
+								temp = ((Checked*)temp)->next;
+							}
+							((Checked*)checkedParams)->next = make_checked(((Checked*)uncheckedParams)->data, NULL);
+						}
+						uncheckedParams = ((Checked*)uncheckedParams)->next;
+						
+					}
+					((lambda*)((Closure*)((Checked*)checkedP)->data)->lam)->params = checkedParams;
+
+					//*e = app?
+				}
 
 				if (!funP)
 				{
@@ -406,20 +466,5 @@ expr* subst(expr* e, expr* x, expr* v)
 
 int main(int argc, char* argv)
 {
-	make_def(make_fun("Test", make_checked(make_var("var1"), make_checked(make_var("var2"), NULL))),
-		make_app(make_prim("*"), make_var("var1"), make_var("var2")));
-
-	printf("tests");
-
-	make_def(make_fun("Scope", make_checked(make_var("num"), make_checked(make_var("num2"), NULL))),
-		make_app(make_prim("+"), make_var("num"), make_var("num2")));
-
-	printf("made\n");
-	expr* f = make_fun("Test", make_checked(make_num(3), 
-		make_checked(make_fun("Scope", make_checked(make_num(3), make_checked(make_num(4), NULL))), NULL)));
-
-	eval(&f);
-
-	printf("%d", ((Jnum*)f)->n);
 	return 0;
 }

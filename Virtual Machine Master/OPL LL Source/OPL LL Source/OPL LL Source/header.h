@@ -4,7 +4,7 @@
 
 typedef enum {TRUE, FALSE}Bool;
 
-enum Tag { IF, NUM, APP, BOOL, PRIM, KRET, KIF, KAPP, CHECKED, UNCHECKED, LAMBDA, VAR, DEF, ENV };
+enum Tag { IF, NUM, APP, BOOL, PRIM, KRET, KIF, KAPP, CHECKED, UNCHECKED, LAMBDA, VAR, DEF, ENV , CLOS};
 
 typedef struct {
 	enum Tag tag;
@@ -77,9 +77,16 @@ typedef struct {
 
 typedef struct {
 	expr h;
-	expr* var, *val;
+	Jvar* var;
+	expr* val;
 	expr** next;
 }Jenv;
+
+typedef struct {
+	expr h;
+	expr* lam;
+	expr* env;
+}Closure;
 
 typedef struct M{
 	Jdef* def;

@@ -380,6 +380,14 @@ public class Main {
 		return new SE_Cons(new SE_Str("let"), new SE_Cons(name, new SE_Cons(e1, new SE_Cons(e2, new SE_MT()))));
 	}
 	
+	public static void lambda_factorial()
+	{
+		JExpr mkfac = new lambda("fac", new JCons(new JVar("n"), new JNull()), //function
+				new JIf(new lambda("zero?", new JCons(new JVar("n"), new JNull()), new JIf(new JVar("n"), new JBool(true), new JBool(false))), //zero?
+						new lambda("one", new JCons(new JVar("f"), new JCons(new JVar("x"), new JNull())), new JCons(new JVar("x"), new JNull())), //true
+						new lambda("mult", /*HELP*/)); //false
+	}
+	
 }
 
 
