@@ -317,12 +317,21 @@ public class Main {
 					desugar(((SE_Cons)((SE_Cons)((SE_Cons)se).rhs).rhs).lhs),
 					desugar(((SE_Cons)((SE_Cons)((SE_Cons)((SE_Cons)se).rhs).rhs).rhs).lhs) ); }
 		
-		//lambda
+		//lambda j3
 		if(se instanceof SE_Cons 
 				&& ((SE_Cons)se).lhs instanceof SE_Str
 				&& ((SE_Str)((SE_Cons)se).lhs).s.equals("let")
 				&& ((SE_Cons)se).rhs instanceof SE_Cons)
 			return new lambda(((SE_Str)((SE_Cons)((SE_Cons)se).rhs).lhs).s, 
+					desugar(((SE_Cons)((SE_Cons)((SE_Cons)se).rhs).rhs).lhs), 
+					desugar(((SE_Cons)((SE_Cons)((SE_Cons)((SE_Cons)se).rhs).rhs).rhs).lhs));
+		
+		//lambda j4
+		if(se instanceof SE_Cons 
+				&& ((SE_Cons)se).lhs instanceof SE_Str
+				&& ((SE_Str)((SE_Cons)se).lhs).s.equals("let")
+				&& ((SE_Cons)se).rhs instanceof SE_Cons)
+			return new lambda("func", 
 					desugar(((SE_Cons)((SE_Cons)((SE_Cons)se).rhs).rhs).lhs), 
 					desugar(((SE_Cons)((SE_Cons)((SE_Cons)((SE_Cons)se).rhs).rhs).rhs).lhs));
 
@@ -385,7 +394,7 @@ public class Main {
 		JExpr mkfac = new lambda("fac", new JCons(new JVar("n"), new JNull()), //function
 				new JIf(new lambda("zero?", new JCons(new JVar("n"), new JNull()), new JIf(new JVar("n"), new JBool(true), new JBool(false))), //zero?
 						new lambda("one", new JCons(new JVar("f"), new JCons(new JVar("x"), new JNull())), new JCons(new JVar("x"), new JNull())), //true
-						new lambda("mult", /*HELP*/)); //false
+						new lambda("mult", new JCons(new JVar("n"), new JNull()), new JNull()))); //false
 	}
 	
 }
