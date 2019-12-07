@@ -288,31 +288,10 @@ void eval(expr** e)
 			break; }
 		case LAMBDA: {
 			printf("LAMBDA\n");
-
-			lambda* temp = (lambda*)e;
-
-			e = make_clos(temp, env);
-			env = NULL;
-			/*
-			lambda* temp = (lambda*)* e;
-			expr* def = inMap(temp);
-
-			if (def != NULL)
-			{
-				expr* exp = ((Jdef*)def)->exp;
-				expr* pNode = ((lambda*)((Jdef*)def)->fun)->params;
-				expr* cNode = temp->params;
-				expr* envir = NULL;
-
-				while (pNode != NULL && cNode != NULL)
-				{
-					envir = make_env(((Checked*)pNode)->data, ((Checked*)cNode)->data, envir);
-					pNode = ((Checked*)pNode)->next;
-					cNode = ((Checked*)cNode)->next;
-				}
-				*e = exp;
-				env = envir;
-			}*/
+			Jenv* envP = make_env(((lambda*)e)->Name, NULL, env);
+			e = make_clos(e, envP);
+			envP->val = e;
+			env = NULL; 
 			break;
 		}
 		case VAR: {

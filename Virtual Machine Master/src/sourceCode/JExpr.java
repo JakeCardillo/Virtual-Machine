@@ -252,3 +252,77 @@ class JVar implements JExpr
 	
 	String name;
 }
+
+class JUnit implements JExpr {
+	public String pp() { 
+		return "UNIT"; }
+	public JUnit() { }
+	public Boolean isValue() { 
+		return true; }
+	public JExpr interp() { 
+		return this; } 
+	public JExpr step() {
+		return this; }
+	public JExpr subst(JVar x, JExpr v) {
+		return this;
+	}
+}
+
+class JPair implements JExpr {
+	public String pp() { 
+		return "PAIR"; }
+	public JPair(JExpr nLeft, JExpr nRight) {
+		this.left = nLeft;
+		this.right = nRight;
+	}
+	public Boolean isValue() { 
+		return true; }
+	public JExpr interp() { 
+		return this; } 
+	public JExpr step() {
+		return this; }
+	public JExpr subst(JVar x, JExpr v) {
+		return this;
+	}
+	
+	public JExpr left;
+	public JExpr right;
+}
+
+class JInL implements JExpr {
+	public String pp() { 
+		return "InLeft"; }
+	public JInL(JExpr nVal) {
+		this.val = nVal;
+	}
+	public Boolean isValue() { 
+		return true; }
+	public JExpr interp() { 
+		return this; } 
+	public JExpr step() {
+		return this; }
+	public JExpr subst(JVar x, JExpr v) {
+		return this;
+	}
+	
+	public JExpr val;
+}
+
+class JInR implements JExpr {
+	public String pp() { 
+		return "InRight"; }
+	public JInR(JExpr nVal) {
+		this.val = nVal;
+	}
+	public Boolean isValue() { 
+		return true; }
+	public JExpr interp() { 
+		return this; } 
+	public JExpr step() {
+		return this; }
+	public JExpr subst(JVar x, JExpr v) {
+		return this;
+	}
+	
+	public JExpr val;
+}
