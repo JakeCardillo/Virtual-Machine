@@ -4,7 +4,8 @@
 
 typedef enum {TRUE, FALSE}Bool;
 
-enum Tag { IF, NUM, APP, BOOL, PRIM, KRET, KIF, KAPP, CHECKED, UNCHECKED, LAMBDA, VAR, DEF, ENV , CLOS};
+enum Tag { IF, NUM, APP, BOOL, PRIM, KRET, KIF, KAPP, CHECKED, UNCHECKED, 
+	LAMBDA, VAR, DEF, ENV , CLOS, CASE, UNIT, PAIR, INL, INR, KCASE};
 
 typedef struct {
 	enum Tag tag;
@@ -92,3 +93,42 @@ typedef struct M{
 	Jdef* def;
 	struct M* next;
 }Map;
+
+typedef struct {
+	expr h;
+}Unit;
+
+typedef struct {
+	expr h;
+	expr* left;
+	expr* right;
+}Pair;
+
+typedef struct {
+	expr h;
+	expr* val;
+}InL;
+
+typedef struct {
+	expr h;
+	expr* val;
+}InR;
+
+typedef struct {
+	expr h;
+	expr* e;
+	expr* inl;
+	expr* lexp;
+	expr* inr;
+	expr* rexp;
+}Case;
+
+typedef struct {
+	expr h;
+	expr* env;
+	expr* inl;
+	expr* lexp;
+	expr* inr;
+	expr* rexp;
+	expr* k;
+}KCase;
