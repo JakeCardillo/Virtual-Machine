@@ -355,3 +355,24 @@ class JCase implements JExpr {
 	public JExpr inr;
 	public JExpr rexp;
 }
+
+class JObj implements JExpr {
+	public String pp() { 
+		return "OBJECT"; }
+	public JObj(String nLabel, JExpr nE) {
+		this.label = nLabel;
+		this.e = nE;
+	}
+	public Boolean isValue() { 
+		return e.isValue();}
+	public JExpr interp() { 
+		return this; } 
+	public JExpr step() {
+		return this; }
+	public JExpr subst(JVar x, JExpr v) {
+		return this;
+	}
+	
+	public String label;
+	public JExpr e;
+}
