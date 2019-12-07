@@ -7,22 +7,12 @@ import java.io.FileWriter;
 
 public class Main {
 	
-	public static int tests_passed = 0;
-	public static HashMap<String, Define> sigMap = new HashMap<String, Define>();
-	
 	public static void main(String[] args) throws IOException {
 		
 		JExpr e = JA("+", JA("*", JN(2), JN(4)), JN(8));
 		//JExpr e = JI(JB(false), JN(8), JA("*", JN(8), JN(7)));
 		
 		emit(e);
-		
-		System.out.println("CC0: " + CC0.interp(e).pp());
-		System.out.println("Big: " + e.interp().pp());
-		
-		test_j3();
-		
-		System.out.println("Tests passed: " + tests_passed);
 	}
 
 	public static void emit(JExpr e) throws IOException
@@ -337,39 +327,6 @@ public class Main {
 
 		//Error
 		return new JNum(42069);
-	}
-	
-	public static void test_j3()
-	{
-		JExpr e1 = JA("+", JN(7), new JVar("x"));
-		JExpr e2 = JA("*", JN(7), new JVar("x"));
-		JExpr e3 = JA("+", new JVar("x"), JN(7));
-		JExpr e4 = JA("*", new JVar("x"), JN(7));
-		
-		JExpr function = new lambda("func", new JCons(new JVar("x"), new JNull()), e1);
-		JExpr result = function.subst(new JVar("x"), JN(5));
-		if (result.interp().pp().equals("12"))
-			tests_passed++;
-		
-		function = new lambda("func", new JCons(new JVar("x"), new JNull()), e2);
-		result = function.subst(new JVar("x"), JN(5));
-		if (result.interp().pp().equals("35"))
-			tests_passed++;
-		
-		function = new lambda("func", new JCons(new JVar("x"), new JNull()), e3);
-		result = function.subst(new JVar("x"), JN(5));
-		if (result.interp().pp().equals("12"))
-			tests_passed++;
-		
-		function = new lambda("func", new JCons(new JVar("x"), new JNull()), e4);
-		result = function.subst(new JVar("x"), JN(5));
-		if (result.interp().pp().equals("35"))
-			tests_passed++;
-		
-		Sexpr se = Slambda(new SE_Str("new func"), new SE_MT(), SA(SN(3), SN(5)));
-		JExpr test = desugar(se);
-		if (test.subst(null, null).interp().pp().equals("8"))
-			tests_passed++;
 	}
 	
 	public static Sexpr SN(int n)

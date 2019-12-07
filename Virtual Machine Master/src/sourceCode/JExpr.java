@@ -157,6 +157,7 @@ class JApp implements JExpr {
 		if ( p.equals(">") ) { return new JBool(lhs > rhs); }
 		if ( p.equals(">=") ) { return new JBool(lhs >= rhs); }
 		if ( p.equals("!=") ) { return new JBool(lhs != rhs); }
+		if ( p.equals("pair") ) { return new JPair(new JNum(lhs), new JNum(rhs)); }
 
 		return new JNum(666); }
 
@@ -188,6 +189,7 @@ class JApp implements JExpr {
 			if ( p.equals(">") ) { return new JBool(lhs > rhs); }
 			if ( p.equals(">=") ) { return new JBool(lhs >= rhs); }
 			if ( p.equals("!=") ) { return new JBool(lhs != rhs); }
+			if ( p.equals("pair") ) { return new JPair(new JNum(lhs), new JNum(rhs)); }
 
 			return new JNum(666); 
 		}
@@ -325,4 +327,31 @@ class JInR implements JExpr {
 	}
 	
 	public JExpr val;
+}
+
+class JCase implements JExpr {
+	public String pp() { 
+		return "CASE"; }
+	public JCase(JExpr nE, JExpr nInl, JExpr nLexp, JExpr nInr, JExpr nRexp) {
+		this.e = nE;
+		this.inl = nInl;
+		this.lexp = nLexp;
+		this.inr = nInr;
+		this.rexp = nRexp;
+	}
+	public Boolean isValue() { 
+		return true; }
+	public JExpr interp() { 
+		return this; } 
+	public JExpr step() {
+		return this; }
+	public JExpr subst(JVar x, JExpr v) {
+		return this;
+	}
+	
+	public JExpr e;
+	public JExpr inl;
+	public JExpr lexp;
+	public JExpr inr;
+	public JExpr rexp;
 }
