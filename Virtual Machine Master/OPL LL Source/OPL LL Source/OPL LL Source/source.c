@@ -219,6 +219,75 @@ expr* make_clos(expr* lam, expr* env)
 	return (expr*)p;
 }
 
+expr* make_unit()
+{
+	printf("make_unit");
+	Unit* p = malloc(sizeof(Unit));
+	p->h.tag = UNIT;
+
+	return (expr*)p;
+}
+
+expr* make_pair(expr* left, expr* right)
+{
+	printf("make_pair");
+	Pair* p = malloc(sizeof(Pair));
+	p->h.tag = PAIR;
+	p->left = left;
+	p->right = right;
+
+	return (expr*)p;
+}
+
+expr* make_inl(expr* val)
+{
+	printf("make_inl");
+	InL* p = malloc(sizeof(InL));
+	p->h.tag = INL;
+	p->val = val;
+
+	return (expr*)p;
+}
+
+expr* make_inr(expr* val)
+{
+	printf("make_inr");
+	InR* p = malloc(sizeof(InR));
+	p->h.tag = INR;
+	p->val = val;
+
+	return (expr*)p;
+}
+
+expr* make_case(expr* e, expr* inl, expr* lexp, expr* inr, expr* rexp)
+{
+	printf("make_case");
+	Case* p = malloc(sizeof(Case));
+	p->h.tag = CASE;
+	p->e = e;
+	p->inl = inl;
+	p->lexp = lexp;
+	p->inr = inr;
+	p->rexp = rexp;
+
+	return (expr*)p;
+}
+
+expr* make_kcase(expr* env, expr* inl, expr* lexp, expr* inr, expr* rexp, expr* k)
+{
+	printf("make_kcase");
+	KCase* p = malloc(sizeof(KCase));
+	p->h.tag = KCASE;
+	p->env = env;
+	p->inl = inl;
+	p->lexp = lexp;
+	p->inr = inr;
+	p->rexp = rexp;
+	p->k = k;
+
+	return (expr*)p;
+}
+
 //is e a val?
 Bool boolVal(expr* e)
 {
@@ -238,26 +307,40 @@ Bool boolVal(expr* e)
 expr* delta(expr* fun, expr* checked)
 {
 	Jprim* prim = (Jprim*)fun;
-	Checked* arg1 = (Checked*)checked;
-	Checked* arg2 = (Checked*)(((Checked*)checked)->next);
+	Checked* cp = (Checked*)checked;
+	Checked* cp2 = (Checked*)cp->next;
 
-	Jnum* num1 = (Jnum*)(arg1->data);
-	Jnum* num2 = (Jnum*)(arg2->data);
+	if (cp->data->tag == NUM) {
+		Jnum* num1 = (Jnum*)(cp->data);
+		Jnum* num2 = (Jnum*)(cp2->data);
 
-	char* p = prim->prim;
-	int lhs = num1->n;
-	int rhs = num2->n;
+		char* p = prim->prim;
+		int lhs = num1->n;
+		int rhs = num2->n;
 
-	if (!strcmp(p, "+")) { return make_num(lhs + rhs); }
-	if (!strcmp(p, "*")) { return make_num(lhs * rhs); }
-	if (!strcmp(p, "/")) { return make_num(lhs / rhs); }
-	if (!strcmp(p, "-")) { return make_num(lhs - rhs); }
-	if (!strcmp(p, "<")) { return make_bool(lhs < rhs); }
-	if (!strcmp(p, "<=")) { return make_bool(lhs <= rhs); }
-	if (!strcmp(p, "==")) { return make_bool(lhs == rhs); }
-	if (!strcmp(p, ">")) { return make_bool(lhs > rhs); }
-	if (!strcmp(p, ">=")) { return make_bool(lhs >= rhs); }
-	if (!strcmp(p, "!=")) { return make_bool(lhs != rhs); }
+		if (!strcmp(p, "+")) { return make_num(lhs + rhs); }
+		if (!strcmp(p, "*")) { return make_num(lhs * rhs); }
+		if (!strcmp(p, "/")) { return make_num(lhs / rhs); }
+		if (!strcmp(p, "-")) { return make_num(lhs - rhs); }
+		if (!strcmp(p, "<")) { return make_bool(lhs < rhs); }
+		if (!strcmp(p, "<=")) { return make_bool(lhs <= rhs); }
+		if (!strcmp(p, "==")) { return make_bool(lhs == rhs); }
+		if (!strcmp(p, ">")) { return make_bool(lhs > rhs); }
+		if (!strcmp(p, ">=")) { return make_bool(lhs >= rhs); }
+		if (!strcmp(p, "!=")) { return make_bool(lhs != rhs); }
+	}
+	else
+	{
+		char* p = prim->prim;
+		expr* lhs = cp->data;
+		expr* rhs = cp2->data;
+
+		if (!strcmp(p, "pair")) { return make_pair(lhs, rhs); }
+		if (!strcmp(p, "inl")) { return make_inl(lhs); }
+		if (!strcmp(p, "inr")) { return make_inr(rhs); }
+		if (!strcmp(p, "fst")) { return lhs; }
+		if (!strcmp(p, "snd")) { return rhs; }
+	}
 
 	return make_num(6969);
 }
@@ -294,6 +377,14 @@ void eval(expr** e)
 			env = NULL; 
 			break;
 		}
+		case CASE: {
+			printf("CASE\n");
+
+			Case* temp = *e;
+
+			ok = make_kcase(env, temp->inl, temp->lexp, temp->inr, temp->rexp, ok);
+			break;
+		}
 		case VAR: {
 			printf("VAR\n");
 			Jvar* temp = (Jvar*)* e;
@@ -322,6 +413,23 @@ void eval(expr** e)
 			case KRET: {
 				printf("KRET\n");
 				return; }
+			case KCASE: {
+				printf("KCASE\n");
+
+				KCase* tempK = (KCase*)ok;
+
+				if ((*e)->tag == INL) {
+					*e = tempK->lexp;
+				}
+				else
+				{
+					*e = tempK->rexp;
+				}
+
+				env = tempK->env;
+				ok = tempK->k;
+				break;
+			}
 			case KIF: {
 				printf("KIF\n");
 				Kif* k = (Kif*)ok;
