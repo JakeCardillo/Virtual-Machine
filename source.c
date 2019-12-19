@@ -405,6 +405,8 @@ void eval(expr** e)
 		case CLOS:
 		case BOOL:
 		case NUM:
+		case INL:
+		case INR:
 		case PRIM:
 		{
 			printf("VALUE\n");
